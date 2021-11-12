@@ -27,5 +27,3 @@ if __name__ == "__main__":
     logging.basicConfig(filename='./logging/ECG_server_log.log',
                         filemode='w', level=logging.INFO)
     start_server()
-    
-
