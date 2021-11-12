@@ -4,3 +4,5 @@ flask
 requests
 datetime
 testfixtures
+pymodm
+pymongo[srv]
