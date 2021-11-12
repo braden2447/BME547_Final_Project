@@ -1,0 +1,6 @@
+pytest
+pytest-pycodestyle
+flask
+requests
+datetime
+testfixtures
