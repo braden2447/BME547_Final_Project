@@ -19,6 +19,7 @@ def status():
 
 
 def start_server():
+    import api.example_route
     app.run()
 
 
