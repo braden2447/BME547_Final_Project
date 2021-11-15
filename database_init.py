@@ -23,6 +23,3 @@ class Patient(MongoModel):
 # x.patient_name = "Anuj Som"
 # x.reciept_timestamps = dt.now()
 # x.save()
-
-
-
