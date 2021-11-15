@@ -6,3 +6,4 @@ datetime
 testfixtures
 pymodm
 pymongo[srv]
+Pillow
