@@ -19,7 +19,9 @@ def status():
 
 
 def start_server():
+    import database_init
     import api.example_route
+    import api.get_mrn_route
     app.run()
 
 
