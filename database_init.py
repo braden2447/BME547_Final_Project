@@ -17,6 +17,10 @@ class Patient(MongoModel):
     medical_image = fields.ImageField()
 
 
+def get_server():
+    return mongodb_server
+
+
 # Testing Patient class & Database Connection
 # x = Patient()
 # x.MRN = 1

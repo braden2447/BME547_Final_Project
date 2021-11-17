@@ -1,10 +1,9 @@
 from __main__ import app
 from database_init import Patient
 from flask import Flask, request, jsonify
-from api.shared_methods import validate_input
 
 
-@app.route('/api/get_mrn', methods=['GET', 'POST'])
+@app.route('/api/get_mrn', methods=['GET'])
 def get_mrn_route():
     MRN_list = get_mrns_from_database()
     MRN_list.sort()
