@@ -32,7 +32,6 @@ def get_server():
 
 # Testing Patient class & Database Connection
 # x = Patient()
-# x.MRN = 1
-# x.patient_name = "Anuj Som"
+# x.MRN = 100
 # x.reciept_timestamps = dt.now()
 # x.save()
