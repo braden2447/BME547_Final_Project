@@ -1,4 +1,5 @@
 from pymodm import connect, MongoModel, fields
+from pymodm.base.fields import MongoBaseField
 import pymongo
 from datetime import datetime as dt
 
@@ -20,19 +21,20 @@ class Patient(MongoModel):
 class PatientTest(MongoModel):
     MRN = fields.IntegerField(primary_key=True)
     patient_name = fields.CharField()
-    ECG_Trace = fields.ImageField()
-    heart_rate = fields.IntegerField()
-    reciept_timestamps = fields.DateTimeField()
-    medical_image = fields.ImageField()
+    ECG_Trace = fields.ListField(fields.ImageField())
+    heart_rate = fields.ListField(fields.IntegerField())
+    reciept_timestamps = fields.ListField(fields.DateTimeField())
+    medical_image = fields.ListField(fields.ImageField())
 
 
 def get_server():
     return mongodb_server
 
-
-# Testing Patient class & Database Connection
-# x = Patient()
+# from PIL import Image
+# # Testing Patient class & Database Connection
+# x = PatientTest()
 # x.MRN = 1
 # x.patient_name = "Anuj Som"
-# x.reciept_timestamps = dt.now()
+# x.ECG_Trace = Image.open("images/acl1.jpg")
+# x.reciept_timestamps.append(dt.now())
 # x.save()

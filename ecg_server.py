@@ -22,6 +22,7 @@ def start_server():
     import database_init
     import api.example_route
     import api.get_mrn_route
+    import api.post_new_patient_info_route
     app.run()
 
 
