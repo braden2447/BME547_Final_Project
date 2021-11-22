@@ -4,9 +4,20 @@ from PIL import Image, ImageTk
 from datetime import datetime
 
 
-def load_and_resize_image(filename, adj_factor):
+def load_and_resize_image(filename):
     pil_image = Image.open(filename)
     original_size = pil_image.size
+    # Determine if vertical or horizontal pic, which way to scale
+    if original_size[0] > original_size[1]:
+        if original_size[0] > 300:
+            adj_factor = 300/original_size[0]
+        else:
+            adj_factor = original_size[0]/300
+    else:
+        if original_size[1] > 200:
+            adj_factor = 200/original_size[1]
+        else:
+            adj_factor = original_size[1]/200
     new_width = round(original_size[0] * adj_factor)
     new_height = round(original_size[1] * adj_factor)
     resized_image = pil_image.resize((new_width, new_height))
@@ -23,7 +34,7 @@ def patient_gui():
             return  # if user cancels picture file selection
 
         # Open image, resize, return tk image
-        tk_image = load_and_resize_image(filename, 0.5)
+        tk_image = load_and_resize_image(filename)
         med_img_label.configure(image=tk_image)
         med_img_label.image = tk_image  # saving this variable
 
@@ -43,7 +54,7 @@ def patient_gui():
         # Add if statement checking if ECG trace and HR label exist
 
         # Return med image to transparent image
-        tk_image = load_and_resize_image("images/Transparent.png", 0.2)
+        tk_image = load_and_resize_image("images/Transparent.png")
         med_img_label.configure(image=tk_image)
         med_img_label.image = tk_image
 
@@ -74,7 +85,7 @@ def patient_gui():
                                  command=medical_img_btn_cmd)
     medical_img_btn.grid(column=0, row=3, padx=(10, 10), pady=(5, 20))
 
-    med_img_placeholder = load_and_resize_image("images/Transparent.png", 0.2)
+    med_img_placeholder = load_and_resize_image("images/Transparent.png")
     med_img_label = ttk.Label(root, image=med_img_placeholder)
     med_img_label.grid(column=0, row=4, columnspan=2, rowspan=3, padx=(10, 10))
 
