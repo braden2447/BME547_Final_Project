@@ -7,3 +7,4 @@ testfixtures
 pymodm
 pymongo[srv]
 Pillow
+biosppy
