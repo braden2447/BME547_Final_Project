@@ -27,10 +27,9 @@ def load_and_resize_image(filename):
 
 
 def analyze_ecg(filename):
-    metrics = [] # initialize metrics list for data storage
-    test_data = read_data(filename) # open file and convert to text format
-    time, voltage = manipulate_data(test_data) # produce time and voltage
-                                               # data lists
+    metrics = []  # initialize metrics list for data storage
+    test_data = read_data(filename)  # open file and convert to text format
+    time, voltage = manipulate_data(test_data)  # produce time, voltage lists
     metrics_list = filter_data(time, voltage, metrics)
     return metrics_list[1]
 
@@ -52,21 +51,21 @@ def patient_gui():
         filename = filedialog.askopenfilename()
         if filename == "":
             messagebox.showinfo("Cancel", "You canceled ECG file selection")
-            return # if user cancels ECG data file selection
-        
+            return  # if user cancels ECG data file selection
+
         # Analyze file via old ecg analysis code
         hr = analyze_ecg(filename)
-        
+
         # Return HR value and ECG trace
         hr_value_update(hr)
         ecg_trace_update()
-    
+
     def hr_value_update(hr):
         hr_label = ttk.Label(root, text="HR (bpm):")
-        hr_label.grid(column=2, row=5, padx=(0,20), pady=(50,0))
-        
+        hr_label.grid(column=2, row=5, padx=(0, 20), pady=(50, 0))
+
         hr_value_label = tk.Label(root, text=hr)
-        hr_value_label.grid(row=5, column=2, columnspan=2, pady=(50,0))     
+        hr_value_label.grid(row=5, column=2, columnspan=2, pady=(50, 0))
         return hr_label, hr_value_label
 
     def ecg_trace_update():
@@ -87,10 +86,10 @@ def patient_gui():
         tk_image = load_and_resize_image("images/Transparent.png")
         med_img_label.configure(image=tk_image)
         med_img_label.image = tk_image
-        
+
         # Delete ECG image and HR label
         hr_value_label = ttk.Label(root, text='   ')
-        hr_value_label.grid(row=5, column=2, columnspan=2, pady=(50,0))
+        hr_value_label.grid(row=5, column=2, columnspan=2, pady=(50, 0))
 
     def exit_btn_cmd():
         root.destroy()
@@ -132,10 +131,10 @@ def patient_gui():
 
     # Initialize HR label and HR value label to be blank
     hr_label = ttk.Label(root, text="HR (bpm):")
-    hr_label.grid(column=2, row=5, padx=(0,20), pady=(50,0))
-        
+    hr_label.grid(column=2, row=5, padx=(0, 20), pady=(50, 0))
+
     hr_value_label = tk.Label(root, text='')
-    hr_value_label.grid(row=5, column=2, columnspan=2, pady=(50,0))
+    hr_value_label.grid(row=5, column=2, columnspan=2, pady=(50, 0))
 
     upload_btn = ttk.Button(root, text="UPLOAD",
                             command=upload_btn_cmd)

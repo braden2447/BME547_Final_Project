@@ -23,7 +23,7 @@ def read_data(filename):
     test_data = test.read()
     test.close()
     # logging.info('Beginning analysis of new ECG trace using {}'.format(
-                 # filename.replace('test_data/', '')))
+    # filename.replace('test_data/', '')))
     return test_data
 
 
@@ -129,7 +129,7 @@ def filter_data(time, voltage, metrics):
                             sampling_rate=(len(time)/time[-1]),
                             path=(r"ecg_data.png"),
                             show=False)
-    
+
     # Matplotlib plot for final project
     plt.plot(volt_filtered[0], volt_filtered[1])
     plt.xlabel('Time (s)')
