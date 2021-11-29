@@ -14,5 +14,15 @@ def test_get_mrn_route():
     assert answer == expected
 
 
+@pytest.mark.parametrize("original_size, expected", [
+    ([100, 100], [200, 200]),
+    ([100, 400], [50, 200]),
+    ([200, 100], [300, 150]),
+    ([500, 200], [300, 120])])
+def test_adj_factor(original_size, expected):
+    from patient_gui import adj_factor
+    assert adj_factor(original_size) == expected
+
+
 def clear_test_database():
     PatientTest.objects.raw({}).delete()
