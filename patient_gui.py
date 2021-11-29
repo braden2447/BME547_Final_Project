@@ -5,23 +5,23 @@ from datetime import datetime
 from ECG_analysis import read_data, manipulate_data, filter_data
 
 
+def adj_factor(original_size):
+    # Determine if vertical or horizontal pic, which way to scale
+    if original_size[0] > original_size[1]:   # horizontal
+        adj_factor = 300/original_size[0]
+    else:                                     # vertical or square
+        adj_factor = 200/original_size[1]
+    new_sizes = []
+    new_sizes.append(round(original_size[0] * adj_factor))  # New width
+    new_sizes.append(round(original_size[1] * adj_factor))  # New height
+    return new_sizes
+
+
 def load_and_resize_image(filename):
     pil_image = Image.open(filename)
     original_size = pil_image.size
-    # Determine if vertical or horizontal pic, which way to scale
-    if original_size[0] > original_size[1]:  # horizontal
-        if original_size[0] > 300:
-            adj_factor = 300/original_size[0]
-        else:
-            adj_factor = original_size[0]/300
-    else:  # vertical
-        if original_size[1] > 200:
-            adj_factor = 200/original_size[1]
-        else:
-            adj_factor = original_size[1]/200
-    new_width = round(original_size[0] * adj_factor)
-    new_height = round(original_size[1] * adj_factor)
-    resized_image = pil_image.resize((new_width, new_height))
+    new_sizes = adj_factor(original_size)
+    resized_image = pil_image.resize((new_sizes[0], new_sizes[1]))
     tk_image = ImageTk.PhotoImage(resized_image)
     return tk_image
 
@@ -57,21 +57,12 @@ def patient_gui():
         hr = analyze_ecg(filename)
 
         # Return HR value and ECG trace
-        hr_value_update(hr)
-        ecg_trace_update()
+        hr_value_label.configure(text=hr)
+        hr_value_label.text = hr
 
-    def hr_value_update(hr):
-        hr_label = ttk.Label(root, text="HR (bpm):")
-        hr_label.grid(column=2, row=5, padx=(0, 20), pady=(50, 0))
-
-        hr_value_label = tk.Label(root, text=hr)
-        hr_value_label.grid(row=5, column=2, columnspan=2, pady=(50, 0))
-        return hr_label, hr_value_label
-
-    def ecg_trace_update():
         ecg_tk_image = load_and_resize_image("ecg_trace.jpg")
-        ecg_img_label = ttk.Label(root, image=ecg_tk_image)
-        ecg_img_label.grid(column=2, row=4, columnspan=2)
+        ecg_img_label.configure(image=ecg_tk_image)
+        ecg_img_label.image = ecg_tk_image
 
     def upload_btn_cmd():
         # Send json dict to server to store in database
@@ -87,9 +78,14 @@ def patient_gui():
         med_img_label.configure(image=tk_image)
         med_img_label.image = tk_image
 
-        # Delete ECG image and HR label
-        hr_value_label = ttk.Label(root, text='   ')
-        hr_value_label.grid(row=5, column=2, columnspan=2, pady=(50, 0))
+        # Clear HR value and ecg image
+        blank = ''
+        hr_value_label.configure(text=blank)
+        hr_value_label.text = blank
+
+        ecg_image = load_and_resize_image("images/Transparent.png")
+        ecg_img_label.configure(image=ecg_image)
+        ecg_img_label.image = ecg_image
 
     def exit_btn_cmd():
         root.destroy()
@@ -120,7 +116,7 @@ def patient_gui():
 
     med_img_placeholder = load_and_resize_image("images/Transparent.png")
     med_img_label = ttk.Label(root, image=med_img_placeholder)
-    med_img_label.grid(column=0, row=4, columnspan=2, rowspan=3, padx=(10, 10))
+    med_img_label.grid(column=0, row=4, columnspan=2, padx=(10, 10))
 
     ecg_data_label = ttk.Label(root, text="Analyze ECG Data")
     ecg_data_label.grid(column=2, row=2)
@@ -131,10 +127,14 @@ def patient_gui():
 
     # Initialize HR label and HR value label to be blank
     hr_label = ttk.Label(root, text="HR (bpm):")
-    hr_label.grid(column=2, row=5, padx=(0, 20), pady=(50, 0))
+    hr_label.grid(column=2, row=5, padx=(0, 20), pady=(20, 20))
 
-    hr_value_label = tk.Label(root, text='')
-    hr_value_label.grid(row=5, column=2, columnspan=2, pady=(50, 0))
+    hr_value_label = ttk.Label(root, text='')
+    hr_value_label.grid(column=2, row=5, columnspan=2, pady=(20, 20))
+
+    ecg_img_placeholder = load_and_resize_image("images/Transparent.png")
+    ecg_img_label = ttk.Label(root, image=ecg_img_placeholder)
+    ecg_img_label.grid(column=2, row=4, columnspan=2, padx=(0, 20))
 
     upload_btn = ttk.Button(root, text="UPLOAD",
                             command=upload_btn_cmd)
@@ -146,7 +146,7 @@ def patient_gui():
 
     exit_btn = ttk.Button(root, text="EXIT",
                           command=exit_btn_cmd)
-    exit_btn.grid(column=2, row=7, columnspan=2, padx=(15, 0), pady=(0, 20))
+    exit_btn.grid(column=2, row=7, columnspan=2, padx=(15, 8), pady=(20, 20))
 
     root.mainloop()
 
