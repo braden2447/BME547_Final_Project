@@ -2,18 +2,19 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 from PIL import Image, ImageTk
 from datetime import datetime
+from ECG_analysis import read_data, manipulate_data, filter_data
 
 
 def load_and_resize_image(filename):
     pil_image = Image.open(filename)
     original_size = pil_image.size
     # Determine if vertical or horizontal pic, which way to scale
-    if original_size[0] > original_size[1]:
+    if original_size[0] > original_size[1]:  # horizontal
         if original_size[0] > 300:
             adj_factor = 300/original_size[0]
         else:
             adj_factor = original_size[0]/300
-    else:
+    else:  # vertical
         if original_size[1] > 200:
             adj_factor = 200/original_size[1]
         else:
@@ -23,6 +24,15 @@ def load_and_resize_image(filename):
     resized_image = pil_image.resize((new_width, new_height))
     tk_image = ImageTk.PhotoImage(resized_image)
     return tk_image
+
+
+def analyze_ecg(filename):
+    metrics = [] # initialize metrics list for data storage
+    test_data = read_data(filename) # open file and convert to text format
+    time, voltage = manipulate_data(test_data) # produce time and voltage
+                                               # data lists
+    metrics_list = filter_data(time, voltage, metrics)
+    return metrics_list[1]
 
 
 def patient_gui():
@@ -39,10 +49,30 @@ def patient_gui():
         med_img_label.image = tk_image  # saving this variable
 
     def ecg_btn_cmd():
-        # Open file
+        filename = filedialog.askopenfilename()
+        if filename == "":
+            messagebox.showinfo("Cancel", "You canceled ECG file selection")
+            return # if user cancels ECG data file selection
+        
         # Analyze file via old ecg analysis code
-        # Return plot as ImageTk and HR number as tk.StringVar
-        pass
+        hr = analyze_ecg(filename)
+        
+        # Return HR value and ECG trace
+        hr_value_update(hr)
+        ecg_trace_update()
+    
+    def hr_value_update(hr):
+        hr_label = ttk.Label(root, text="HR (bpm):")
+        hr_label.grid(column=2, row=5, padx=(0,20), pady=(50,0))
+        
+        hr_value_label = tk.Label(root, text=hr)
+        hr_value_label.grid(row=5, column=2, columnspan=2, pady=(50,0))     
+        return hr_label, hr_value_label
+
+    def ecg_trace_update():
+        ecg_tk_image = load_and_resize_image("ecg_trace.jpg")
+        ecg_img_label = ttk.Label(root, image=ecg_tk_image)
+        ecg_img_label.grid(column=2, row=4, columnspan=2)
 
     def upload_btn_cmd():
         # Send json dict to server to store in database
@@ -57,6 +87,10 @@ def patient_gui():
         tk_image = load_and_resize_image("images/Transparent.png")
         med_img_label.configure(image=tk_image)
         med_img_label.image = tk_image
+        
+        # Delete ECG image and HR label
+        hr_value_label = ttk.Label(root, text='   ')
+        hr_value_label.grid(row=5, column=2, columnspan=2, pady=(50,0))
 
     def exit_btn_cmd():
         root.destroy()
@@ -96,15 +130,12 @@ def patient_gui():
                               command=ecg_btn_cmd)
     ecg_data_btn.grid(column=2, row=3, padx=(10, 10), pady=(5, 20))
 
-    # Decided to display HR value as a label after ECG data analysis
-
-    # hr_label = ttk.Label(root, text="HR (bpm):")
-    # hr_label.grid(column=2, row=5, padx=(0,20), pady=(50,0))
-
-    # hr_value = tk.StringVar() # Need to integrate with ecg btn command return
-    # hr_box = ttk.Entry(root, width=4, textvariable=hr_value)
-    # hr_box.state=(["readonly"])
-    # hr_box.grid(row=5, column=2, columnspan=2, pady=(50,0))
+    # Initialize HR label and HR value label to be blank
+    hr_label = ttk.Label(root, text="HR (bpm):")
+    hr_label.grid(column=2, row=5, padx=(0,20), pady=(50,0))
+        
+    hr_value_label = tk.Label(root, text='')
+    hr_value_label.grid(row=5, column=2, columnspan=2, pady=(50,0))
 
     upload_btn = ttk.Button(root, text="UPLOAD",
                             command=upload_btn_cmd)

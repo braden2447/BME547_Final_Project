@@ -2,6 +2,7 @@ import json
 import math
 import logging
 from biosppy.signals import ecg
+import matplotlib.pyplot as plt
 
 
 def read_data(filename):
@@ -126,7 +127,15 @@ def filter_data(time, voltage, metrics):
     """
     volt_filtered = ecg.ecg(signal=voltage,
                             sampling_rate=(len(time)/time[-1]),
-                            show=True)
+                            path=(r"ecg_data.png"),
+                            show=False)
+    
+    # Matplotlib plot for final project
+    plt.plot(volt_filtered[0], volt_filtered[1])
+    plt.xlabel('Time (s)')
+    plt.ylabel('Amplitude')
+    plt.title('ECG Trace')
+    plt.savefig("ecg_trace.jpg")
 
     num_beats = len(volt_filtered[2])  # Num of heartbeats using rpeaks array
     metrics.append(num_beats)
