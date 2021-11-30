@@ -4,17 +4,46 @@ from PIL import Image, ImageTk
 from datetime import datetime
 from patient_gui import load_and_resize_image
 
+# Image toolbox imports
+import base64
+import io
+import matplotlib.image as mpimg
+from matplotlib import pyplot as plt
+from skimage.io import imsave
+
 
 def monitoring_gui():
 
-    def save_med_img_cmd():
+    def on_patient_select(event):
+        clear_btn_cmd()
         pass
+
+    def save_med_img_cmd():
+        new_filename = filedialog.asksaveasfile(mode='w', defaultextension='.jpg')
+        if new_filename is None:
+            messagebox.showinfo("Cancel", ("Medical image save "
+                                           "has been canceled"))
+        image_bytes = base64.b64decode(b64_string)
+        with open(new_filename, "wb") as out_file:
+            out_file.write(image_bytes)
 
     def save_latest_ecg_cmd():
-        pass
+        new_filename = filedialog.asksaveasfile(mode='w', defaultextension='.jpg')
+        if new_filename is None:
+            messagebox.showinfo("Cancel", ("ECG image save "
+                                           "has been canceled"))
+        image_bytes = base64.b64decode(b64_string)
+        with open(new_filename, "wb") as out_file:
+            out_file.write(image_bytes)
 
     def save_hist_ecg_cmd():
-        pass
+        new_filename = filedialog.asksaveasfile(mode='w', defaultextension='.jpg')
+        if new_filename is None:
+            messagebox.showinfo("Cancel", ("Historical ECG image save "
+                                           "has been canceled"))
+        image_bytes = base64.b64decode(b64_string)
+        with open(new_filename, "wb") as out_file:
+            out_file.write(image_bytes)
 
     def clear_btn_cmd():
         mrn_combo_box.set('')
@@ -45,6 +74,7 @@ def monitoring_gui():
     mrn_combo_box.state(["readonly"])
     mrn_combo_box.grid(column=0, row=1, columnspan=2,
                        padx=(10, 10), pady=(0, 10))
+    
     # mrn_combo_box["values"] = get from API request
 
     name_label = ttk.Label(root, text="Patient Name")
@@ -67,9 +97,9 @@ def monitoring_gui():
     ecg_label.grid(column=0, row=2, columnspan=2, pady=(10, 0))
 
     # Retrieve latest ECG image and display
-    # ecg_image = load_and_resize_image("images/Transparent.png", 0.2)
-    # ecg_label = ttk.Label(root, image=ecg_image)
-    # ecg_label.grid(column=0, row=8, padx=(10, 10))
+    ecg_image = load_and_resize_image("images/Transparent.png")
+    ecg_label = ttk.Label(root, image=ecg_image)
+    ecg_label.grid(column=0, row=4, columnspan=2, padx=(10, 10))
 
     hr_label = ttk.Label(root, text="HR (bpm):")
     hr_label.grid(column=0, row=5, padx=(10, 10), pady=(10, 10), sticky='e')
@@ -95,10 +125,9 @@ def monitoring_gui():
     hist_ecg_combo_box.state(["readonly"])
     hist_ecg_combo_box.grid(column=2, row=3, columnspan=2, pady=(0, 10))
 
-    # Retrieve historical ECG selected and display
-    # hist_ecg_image = load_and_resize_image("images/Transparent.png", 0.2)
-    # hist_ecg_label = ttk.Label(root, image=hist_ecg_image)
-    # hist_ecg_label.grid(column=1, row=8, rowspan=2, padx=(10, 10))
+    hist_ecg_image = load_and_resize_image("images/Transparent.png")
+    hist_ecg_label = ttk.Label(root, image=hist_ecg_image)
+    hist_ecg_label.grid(column=2, row=4, columnspan=2, padx=(10, 10))
 
     medical_img_label = ttk.Label(root, text="Saved Medical Images:")
     medical_img_label.grid(column=4, row=2, pady=(10, 10))
@@ -112,19 +141,21 @@ def monitoring_gui():
     # Placeholder medical image for now before server comm established
     med_img_placeholder = load_and_resize_image("images/Transparent.png")
     med_img_label = ttk.Label(root, image=med_img_placeholder)
-    med_img_label.grid(column=4, row=4, rowspan=4, pady=(0, 10), sticky='s')
+    med_img_label.grid(column=4, row=4, pady=(0, 10))
 
     save_med_img_btn = ttk.Button(root, text="SAVE MEDICAL IMAGE",
                                   command=save_med_img_cmd)
-    save_med_img_btn.grid(column=4, row=8, padx=(0, 20))
+    save_med_img_btn.grid(column=4, row=8, padx=(0, 20), pady=(20, 0))
 
     save_latest_ecg_btn = ttk.Button(root, text="SAVE LATEST ECG",
                                      command=save_latest_ecg_cmd)
-    save_latest_ecg_btn.grid(column=0, row=8, columnspan=2, padx=(0, 20))
+    save_latest_ecg_btn.grid(column=0, row=8, columnspan=2, padx=(0, 20),
+                             pady=(20,0))
 
     save_hist_ecg_btn = ttk.Button(root, text="SAVE HISTORICAL ECG",
                                    command=save_hist_ecg_cmd)
-    save_hist_ecg_btn.grid(column=2, row=8, columnspan=2, padx=(0, 20))
+    save_hist_ecg_btn.grid(column=2, row=8, columnspan=2, padx=(0, 20),
+                           pady=(20,0))
 
     clear_btn = ttk.Button(root, text="CLEAR ALL",
                            command=clear_btn_cmd)
