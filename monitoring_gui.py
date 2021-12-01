@@ -9,17 +9,29 @@ import base64
 import io
 import matplotlib.image as mpimg
 from matplotlib import pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from skimage.io import imsave
 
 
 def monitoring_gui():
 
-    def on_patient_select(event):
-        clear_btn_cmd()
+    def display_server_img(b64_string, img_widget):
+        '''# Convert b64 str to ndarray
+        image_bytes = base64.b64decode(b64_string)
+        image_buf = io.BytesIO(image_bytes)
+        img_ndarray = mpimg.imread(image_buf, format='JPG')
+
+        # Plot ndarray using matplotlib
+        fig = plt.Figure(figsize=(3,2), dpi=100) # set fig to 300x200
+        fig.add_subplot(111)
+        tk_img = FigureCanvasTkAgg(fig, root)
+        img_widget.configure(image=tk_img)
+        img_widget.image = tk_img'''
         pass
 
     def save_med_img_cmd():
-        new_filename = filedialog.asksaveasfile(mode='w', defaultextension='.jpg')
+        new_filename = filedialog.asksaveasfile(mode='w',
+                                                defaultextension='.jpg')
         if new_filename is None:
             messagebox.showinfo("Cancel", ("Medical image save "
                                            "has been canceled"))
@@ -28,7 +40,8 @@ def monitoring_gui():
             out_file.write(image_bytes)
 
     def save_latest_ecg_cmd():
-        new_filename = filedialog.asksaveasfile(mode='w', defaultextension='.jpg')
+        new_filename = filedialog.asksaveasfile(mode='w',
+                                                defaultextension='.jpg')
         if new_filename is None:
             messagebox.showinfo("Cancel", ("ECG image save "
                                            "has been canceled"))
@@ -37,7 +50,8 @@ def monitoring_gui():
             out_file.write(image_bytes)
 
     def save_hist_ecg_cmd():
-        new_filename = filedialog.asksaveasfile(mode='w', defaultextension='.jpg')
+        new_filename = filedialog.asksaveasfile(mode='w',
+                                                defaultextension='.jpg')
         if new_filename is None:
             messagebox.showinfo("Cancel", ("Historical ECG image save "
                                            "has been canceled"))
@@ -53,12 +67,38 @@ def monitoring_gui():
         time_box.delete(0, 25)
         med_img_combo_box.set('')
         hist_ecg_combo_box.set('')
-        # if statement to check if ECG traces exist
 
-        # Return med img to transparent
+        # Return images to transparent
         tk_image = load_and_resize_image("images/Transparent.png")
         med_img_label.configure(image=tk_image)
         med_img_label.image = tk_image
+        ecg_img_label.configure(image=tk_image)
+        ecg_img_label.image = tk_image
+        hist_ecg_label.configure(image=tk_image)
+        hist_ecg_label.image = tk_image
+
+    def on_patient_select(event):
+        clear_btn_cmd()
+        # name_data.set(pat_list[0][0])  # Assuming pat name stored first
+        # mrn_data.set(pat_list[0][1])   # Assuming pat mrn stored second
+        # hr_data.set(pat_list[0][3])
+        # time_data.set(pat_list[0][4])
+
+        # Get latest ECG img from server
+        # display_server_img(pat_list[0][2], ecg_img_label)
+        pass
+
+    def on_ecg_select(event):
+        # ecg_str = hist_ecg_combo_box.get()
+        # request b64 from server
+        # display_server_img
+        pass
+
+    def on_med_img_select(event):
+        # med_img_str = med_img_combo_box.get()
+        # request b64 from server
+        # display_server_img
+        pass
 
     def exit_btn_cmd():
         root.destroy()
@@ -74,7 +114,7 @@ def monitoring_gui():
     mrn_combo_box.state(["readonly"])
     mrn_combo_box.grid(column=0, row=1, columnspan=2,
                        padx=(10, 10), pady=(0, 10))
-    
+
     # mrn_combo_box["values"] = get from API request
 
     name_label = ttk.Label(root, text="Patient Name")
@@ -98,8 +138,8 @@ def monitoring_gui():
 
     # Retrieve latest ECG image and display
     ecg_image = load_and_resize_image("images/Transparent.png")
-    ecg_label = ttk.Label(root, image=ecg_image)
-    ecg_label.grid(column=0, row=4, columnspan=2, padx=(10, 10))
+    ecg_img_label = ttk.Label(root, image=ecg_image)
+    ecg_img_label.grid(column=0, row=4, columnspan=2, padx=(10, 10))
 
     hr_label = ttk.Label(root, text="HR (bpm):")
     hr_label.grid(column=0, row=5, padx=(10, 10), pady=(10, 10), sticky='e')
@@ -122,6 +162,7 @@ def monitoring_gui():
 
     hist_ecg_selected = tk.StringVar()
     hist_ecg_combo_box = ttk.Combobox(root, textvariable=hist_ecg_selected)
+    hist_ecg_combo_box.bind("<<ComboboxSelected>>", on_ecg_select)
     hist_ecg_combo_box.state(["readonly"])
     hist_ecg_combo_box.grid(column=2, row=3, columnspan=2, pady=(0, 10))
 
@@ -150,12 +191,12 @@ def monitoring_gui():
     save_latest_ecg_btn = ttk.Button(root, text="SAVE LATEST ECG",
                                      command=save_latest_ecg_cmd)
     save_latest_ecg_btn.grid(column=0, row=8, columnspan=2, padx=(0, 20),
-                             pady=(20,0))
+                             pady=(20, 0))
 
     save_hist_ecg_btn = ttk.Button(root, text="SAVE HISTORICAL ECG",
                                    command=save_hist_ecg_cmd)
     save_hist_ecg_btn.grid(column=2, row=8, columnspan=2, padx=(0, 20),
-                           pady=(20,0))
+                           pady=(20, 0))
 
     clear_btn = ttk.Button(root, text="CLEAR ALL",
                            command=clear_btn_cmd)
