@@ -31,8 +31,8 @@ def test_img_to_b64_str():
     assert answer[0:20] == expected
 
 
-def test_patient_dict_upload(mrn, name, time, ecg, med, expected)
-    pass    
+def test_patient_dict_upload():
+    pass
 
 
 def clear_test_database():
