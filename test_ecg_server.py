@@ -24,5 +24,16 @@ def test_adj_factor(original_size, expected):
     assert adj_factor(original_size) == expected
 
 
+def test_img_to_b64_str():
+    from patient_gui import img_to_b64_str
+    answer = img_to_b64_str("images/test_image.png")
+    expected = "iVBORw0KGgoAAAANSUhE"
+    assert answer[0:20] == expected
+
+
+def test_patient_dict_upload():
+    pass
+
+
 def clear_test_database():
     PatientTest.objects.raw({}).delete()
