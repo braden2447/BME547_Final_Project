@@ -7,3 +7,6 @@ testfixtures
 pymodm
 pymongo[srv]
 Pillow
+biosppy
+matplotlib
+scikit-image
