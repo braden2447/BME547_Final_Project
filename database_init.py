@@ -10,12 +10,12 @@ mongodb_server = connect(db_server)
 
 
 class Patient(MongoModel):
-    MRN = fields.IntegerField(primary_key=True)    # Medical Record Number
-    patient_name = fields.CharField()              # Patient Name
-    ECG_Trace = fields.ImageField()                # ECG Images
-    heart_rate = fields.IntegerField()             # Heart Rate Data
-    reciept_timestamps = fields.DateTimeField()    # Datetime timestamps
-    medical_image = fields.ImageField()            # Medical Images
+    MRN = fields.IntegerField(primary_key=True)          # Medical Record Number
+    patient_name = fields.CharField()                    # Patient Name
+    ECG_Trace = fields.ListField(fields.CharField())     # ECG Images as b64
+    heart_rate = fields.IntegerField()                   # Heart Rate Data
+    reciept_timestamps = fields.DateTimeField()          # Datetime timestamps
+    medical_image = fields.ListField(fields.CharField()) # Medical Images as b64
 
 
 class PatientTest(MongoModel):

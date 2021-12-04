@@ -7,8 +7,6 @@ from api.shared_methods import str_to_int
 from api.shared_methods import get_patient_from_db
 
 
-
-
 @app.route('/api/post_new_patient_info', methods=['POST'])
 def post_new_patient():
     in_data = request.get_json()
@@ -34,10 +32,13 @@ def update_patient_fields(MRN, in_data):
     if 'patient_name' in in_data.keys:
         patient.patient_name = in_data['patient_name']
     if 'ECG_Trace' in in_data.keys:
-        patient.ECG_trace = in_data['ECG_Trace']
-
-
-
+        patient.ECG_trace.append(in_data['ECG_Trace'])
+    if 'heart_rate' in in_data.keys:
+        patient.heart_rate.append(in_data['heart_rate'])
+    if 'medical_image' in in_data.keys:
+        patient.medical_image.append(in_data['medical_image'])
+    if 'reciept_timestamps' in in_data.keys:
+        patient.reciept_timestamps.append(in_data['reciept_timestamps'])
 
 
 # The upload may also include a name, medical image, and/or heart
