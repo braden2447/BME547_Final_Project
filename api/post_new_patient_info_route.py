@@ -60,12 +60,3 @@ def update_patient_fields(input_MRN, in_data):
     if 'medical_image' in keys:
         patient.medical_image.append(in_data['medical_image'])
     patient.save()
-
-
-# The upload may also include a name, medical image, and/or heart
-# rate & ECG image
-# If the upload contains a medical record number not already found
-# in the database,
-# a new entry should be made for that patient, and the information
-# sent with the
-# request stored in this new record

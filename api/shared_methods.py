@@ -1,5 +1,6 @@
-from database_init import Patient
+from database_init import Patient, PatientTest
 from pymodm import errors as pymodm_errors
+from datetime import datetime as dt
 
 
 def validate_dict_input(in_data, expected_keys):
@@ -89,3 +90,41 @@ def get_patient_from_db(MRN):
     except pymodm_errors.DoesNotExist:
         return False
     return db_item
+
+
+# For api/post_new_patient_info route
+def update_patient_fields(input_MRN, in_data):    
+    patient = get_patient_from_db(input_MRN)
+    if(patient is False):       # No patient exists in db yet; create new one
+        patient = Patient(MRN=input_MRN).save()
+    keys = list(in_data.keys())
+
+    if 'patient_name' in keys:
+        patient.patient_name = in_data['patient_name']
+    if 'ECG_trace' in keys:
+        patient.ECG_trace.append(in_data['ECG_trace'])
+        patient.receipt_timestamps.append(dt.now().strftime("%Y-%m-%d %H:%M:%S"))
+    if 'heart_rate' in keys:
+        patient.heart_rate.append(str_to_int(in_data['heart_rate'])[0])
+    if 'medical_image' in keys:
+        patient.medical_image.append(in_data['medical_image'])
+    patient.save()
+
+
+# Exact same function as above but for PatientTest class
+def update_patient_fields_pt(input_MRN, in_data):    
+    patient = get_patient_from_db(input_MRN)
+    if(patient is False):       # No patient exists in db yet; create new one
+        patient = PatientTest(MRN=input_MRN).save()
+    keys = list(in_data.keys())
+
+    if 'patient_name' in keys:
+        patient.patient_name = in_data['patient_name']
+    if 'ECG_trace' in keys:
+        patient.ECG_trace.append(in_data['ECG_trace'])
+        patient.receipt_timestamps.append(dt.now().strftime("%Y-%m-%d %H:%M:%S"))
+    if 'heart_rate' in keys:
+        patient.heart_rate.append(str_to_int(in_data['heart_rate'])[0])
+    if 'medical_image' in keys:
+        patient.medical_image.append(in_data['medical_image'])
+    patient.save()
