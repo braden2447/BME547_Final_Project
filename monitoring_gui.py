@@ -23,6 +23,22 @@ global med_img_str
 global hist_ecg_img_str
 
 
+def enumerate_times(list):
+    combo_list = []
+    if len(list) != 0:
+        for index, value in enumerate(list):
+            combo_list.append("#" + str(index+1) + ": " + value)
+    return combo_list
+
+
+def enumerate_med_img(list):
+    combo_list = []
+    if len(list) != 0:
+        for index, value in enumerate(list):
+            combo_list.append("Medical Image #" + str(index+1))
+    return combo_list
+
+
 def monitoring_gui():
 
     def display_ndarray_img(img_ndarray):
@@ -96,17 +112,15 @@ def monitoring_gui():
 
     def populate_hist_ecg_combo(mrn):
         timestamp_list = db_get_req(mrn, "receipt_timestamps")
-        if len(timestamp_list) != 0:
-            hist_combo_list = []
-            for index, value in enumerate(timestamp_list):
-                hist_combo_list.append("#" + str(index+1) + ": " + value)
+        hist_combo_list = enumerate_times(timestamp_list)
+        if len(hist_combo_list) != 0:
             hist_ecg_combo_box["values"] = hist_combo_list
 
     def populate_med_img_combo(mrn):
         med_img_list = db_get_req(mrn, "medical_image")
-        if len(med_img_list) != 0:
-            med_combo_list = []
-            for index, value in enumerate(
+        med_combo_list = enumerate_med_img(med_img_list)
+        if len(med_combo_list) != 0:
+            med_img_combo_box["values"] = med_combo_list
 
     def on_patient_select(event):
         clear_btn_cmd()

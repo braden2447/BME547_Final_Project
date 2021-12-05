@@ -145,5 +145,26 @@ def test_create_pat_dict(mrn, name, hr, ecg, med, expected):
     assert answer == expected
 
 
+@pytest.mark.parametrize("list, expected", [
+    ([], []),
+    (["2021-12-5 12:00:00"], ["#1: 2021-12-5 12:00:00"]),
+    (["2021-12-5 13:00:00", "2021-12-5 14:00:00"],
+     ["#1: 2021-12-5 13:00:00", "#2: 2021-12-5 14:00:00"])])
+def test_enumerate_times(list, expected):
+    from monitoring_gui import enumerate_times
+    answer = enumerate_times(list)
+    assert answer == expected
+
+
+@pytest.mark.parametrize("list, expected", [
+    ([], []),
+    (["string1"], ["Medical Image #1"]),
+    (["string1", "string2"], ["Medical Image #1", "Medical Image #2"])])
+def test_enumerate_med_img(list, expected):
+    from monitoring_gui import enumerate_med_img
+    answer = enumerate_med_img(list)
+    assert answer == expected
+
+
 def clear_test_database():
     PatientTest.objects.raw({}).delete()
