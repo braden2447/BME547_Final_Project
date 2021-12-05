@@ -9,17 +9,9 @@ host_route = "http://127.0.0.1:5000/"
 
 # Test api/get_mrn route
 # Will return sorted list of existing MRN in database
-# r = requests.get(host_route + "api/get_mrn")
-# print("{}: {}".format(r.status_code, r.json()))
-# print(type(r.json()))
-
-# # Testing Patient class & Database Connection
-# x = Patient()
-# x.MRN = 1
-# x.patient_name = "Anuj Som"
-# x.ECG_Trace = Image.open("images/acl1.jpg")
-# x.reciept_timestamps.append(dt.now())
-# x.save()
+r = requests.get(host_route + "api/get_mrn")
+print("{}: {}".format(r.status_code, r.json()))
+print(type(r.json()))
 
 clean_database()
 

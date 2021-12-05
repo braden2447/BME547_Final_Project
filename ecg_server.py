@@ -19,6 +19,9 @@ def status():
 
 
 def start_server():
+    """Runs server with specific imported
+    api routes
+    """
     import database_init
     import api.get_mrn_route
     import api.get_patient_from_database_route
