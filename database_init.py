@@ -10,21 +10,27 @@ mongodb_server = connect(db_server)
 
 
 class Patient(MongoModel):
-    MRN = fields.IntegerField(primary_key=True)          # Medical Record Number
-    patient_name = fields.CharField()                    # Patient Name
-    ECG_Trace = fields.ListField(fields.CharField())     # ECG Images as b64
-    heart_rate = fields.ListField(fields.IntegerField()) # Heart Rate Data
-    reciept_timestamps = fields.DateTimeField()          # Datetime timestamps
-    medical_image = fields.ListField(fields.CharField()) # Medical Images as b64
+    # Medical Record Number
+    # Patient Name
+    # ECG Images as b64 string
+    # Heart Rate Data
+    # Datetime timestamps as strftime strings
+    # Medical Images as b64 string
+    MRN = fields.IntegerField(primary_key=True)          
+    patient_name = fields.CharField()
+    ECG_trace = fields.ListField(fields.CharField())
+    heart_rate = fields.ListField(fields.IntegerField())
+    receipt_timestamps = fields.ListField(fields.CharField())
+    medical_image = fields.ListField(fields.CharField())
 
 
 class PatientTest(MongoModel):
-    MRN = fields.IntegerField(primary_key=True)
+    MRN = fields.IntegerField(primary_key=True)          
     patient_name = fields.CharField()
-    ECG_Trace = fields.ListField(fields.ImageField())
+    ECG_trace = fields.ListField(fields.CharField())
     heart_rate = fields.ListField(fields.IntegerField())
-    reciept_timestamps = fields.ListField(fields.DateTimeField())
-    medical_image = fields.ListField(fields.ImageField())
+    receipt_timestamps = fields.ListField(fields.CharField())
+    medical_image = fields.ListField(fields.CharField())
 
 
 def get_server():
@@ -32,9 +38,11 @@ def get_server():
 
 # from PIL import Image
 # # Testing Patient class & Database Connection
-# x = PatientTest()
-# x.MRN = 1
-# x.patient_name = "Anuj Som"
-# x.ECG_Trace = Image.open("images/acl1.jpg")
-# x.reciept_timestamps.append(dt.now())
-# x.save()
+import image_toolbox as tb
+x = PatientTest()
+x.MRN = 1
+x.patient_name = "Anuj Som"
+x.ECG_trace.append(tb.file_to_b64("images/test_image.png"))
+x.heart_rate.append(60)
+x.receipt_timestamps.append(dt.now().strftime("%Y-%m-%d %H:%M:%S"))
+x.save()

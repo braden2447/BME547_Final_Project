@@ -1,5 +1,4 @@
 from __main__ import app
-from database_init import Patient
 from flask import Flask, request, jsonify
 from pymodm import errors as pymodm_errors
 from api.shared_methods import validate_dict_input
@@ -25,6 +24,8 @@ def post_new_patient():
 
 def update_patient_fields(input_MRN, in_data):
     from api.shared_methods import get_patient_from_db
+    from database_init import Patient    
+
     patient = get_patient_from_db(input_MRN)
     if(patient is False):       # No patient exists in db yet; create new one
         patient = Patient(MRN=input_MRN).save()
@@ -38,9 +39,9 @@ def update_patient_fields(input_MRN, in_data):
         patient.heart_rate.append(in_data['heart_rate'])
     if 'medical_image' in keys:
         patient.medical_image.append(in_data['medical_image'])
-    if 'reciept_timestamps' in keys:
-        patient.reciept_timestamps.append(in_data['reciept_timestamps'])
-    patient.save()
+    if 'receipt_timestamps' in keys:
+        patient.receipt_timestamps.append(in_data['receipt_timestamps'])
+    
 
 # The upload may also include a name, medical image, and/or heart
 # rate & ECG image
