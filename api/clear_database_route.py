@@ -3,7 +3,7 @@ from database_init import clean_database
 
 
 @app.route('/api/clear_db/<Password>', methods=['GET'])
-def get_mrn_route(Password):
+def clear_db_route(Password):
     if Password != "BME547":
         return "Password incorrect"
     clean_database()
