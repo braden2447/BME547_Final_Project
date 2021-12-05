@@ -148,11 +148,11 @@ def update_patient_fields(input_MRN, in_data):
 
     in_data should contain a dict formatted as follows:
     {
-        "MRN": [int, str]    # can be an int or string
-        "patient_name": str, # Should be patient MRN
-        "ECG_trace": b64_str # Image info as b64_string
-        "heart_rate": int    # heart rate of above image
-        "medical_images": 
+        "MRN": [int, str]         # can be an int or string
+        "patient_name": str,      # Should be patient MRN
+        "ECG_trace": b64_str      # Image info as b64_string
+        "heart_rate": int         # heart rate of above image
+        "medical_images": b64_str # Image info as b64_string
     }
     The only required field is "MRN". If an ECG trace is
     uploaded, it must be accompanied by a heart_rate and
@@ -189,11 +189,11 @@ def update_patient_fields_pt(input_MRN, in_data):
 
     in_data should contain a dict formatted as follows:
     {
-        "MRN": [int, str]    # can be an int or string
-        "patient_name": str, # Should be patient MRN
-        "ECG_trace": b64_str # Image info as b64_string
-        "heart_rate": int    # heart rate of above image
-        "medical_images": 
+        "MRN": [int, str]         # can be an int or string
+        "patient_name": str,      # Should be patient MRN
+        "ECG_trace": b64_str      # Image info as b64_string
+        "heart_rate": int         # heart rate of above image
+        "medical_images": b64_str # Image info as b64_string
     }
     The only required field is "MRN". If an ECG trace is
     uploaded, it must be accompanied by a heart_rate and
