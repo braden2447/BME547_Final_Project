@@ -8,6 +8,19 @@ from pymodm import errors as pymodm_errors
 
 @app.route('/api/get_patient_from_database/<MRN>/<field>', methods=['GET'])
 def get_patient_from_database_route(MRN, field):
+    """Allows client to obtain select data from the
+    database
+
+    Allows user to input MRN and field from patient
+    they are interested in, and returns the information
+    pulled from the database as specified by field.
+    Valid fields are: 'MRN', 'patient_name', 'ECG_trace',
+                      'heart_rate', 'receipt_timestamps',
+                      'medical_image'
+
+    Returns:
+        json: requested information
+    """
     value, status = str_to_int(MRN)
     if(not status):
         return "Invalid MRN format", 400

@@ -34,10 +34,17 @@ class PatientTest(MongoModel):
 
 
 def get_database():
+    """Simply returns the mongodb_server object
+
+    Returns:
+        mongodb_server object
+    """
     return mongodb_server
 
 
 def clean_database():
+    """Deletes all contents of the Patient database
+    """
     Patient.objects.raw({}).delete()
 
 # from PIL import Image

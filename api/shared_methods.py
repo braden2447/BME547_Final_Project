@@ -27,7 +27,8 @@ def validate_dict_input(in_data, expected_keys):
         expected_keys (dict(string:list)):
 
     Returns:
-        [type]: [description]
+        str, bool: error string or boolean truth value
+        int: status code
     """
     if type(in_data) is not dict:
         return "The input was not a dictionary.", 400
@@ -76,6 +77,27 @@ def str_to_int(value):
 
 # For api/get_mrn route
 def get_mrns_from_database(results):
+    """Accepts json request and posts new patient heart rate
+    to server database.
+
+    Method curated by Braden Garrison
+
+    json request should contain a dict formatted as follows:
+    {
+        "patient_id": int, # Should be patient MRN
+        "heart_rate_average_since": str # Should be formatted in form:
+                                        # "2018-03-09 11:00:36"
+    }
+    This method will be used to calculate and return the heart
+    rate interval average of a specified patient since the given
+    date/time.
+
+    Args:
+        QuerySet: all patients within database
+
+    Returns:
+        list [int]: list of MRNs within database
+    """
     MRN_list = []
 
     for item in results:
@@ -85,6 +107,15 @@ def get_mrns_from_database(results):
 
 
 def get_patient_from_db(MRN):
+    """Accepts MRN and gets specified patient from database,
+    else returns False if no patient with MRN in database.
+
+    Args:
+        int: MRN to lookup
+
+    Returns:
+        QuerySet, bool: patient object from db or False if not found
+    """
     try:
         db_item = Patient.objects.raw({"_id": MRN}).first()
     except pymodm_errors.DoesNotExist:
@@ -93,6 +124,15 @@ def get_patient_from_db(MRN):
 
 
 def get_patient_from_db_pt(MRN):
+    """Same as get_patient_from_db method
+    but for PatientTest mongodb collection
+
+    Args:
+        int: MRN to lookup
+
+    Returns:
+        QuerySet, bool: patient object from db or False if not found
+    """
     try:
         db_item = PatientTest.objects.raw({"_id": MRN}).first()
     except pymodm_errors.DoesNotExist:
@@ -102,6 +142,28 @@ def get_patient_from_db_pt(MRN):
 
 # For api/post_new_patient_info route
 def update_patient_fields(input_MRN, in_data):
+    """Updates mongodb database fields according
+    to information found in in_data for patient
+    found by input_MRN
+
+    in_data should contain a dict formatted as follows:
+    {
+        "MRN": [int, str]         # can be an int or string
+        "patient_name": str,      # Should be patient MRN
+        "ECG_trace": b64_str      # Image info as b64_string
+        "heart_rate": int         # heart rate of above image
+        "medical_images": b64_str # Image info as b64_string
+    }
+    The only required field is "MRN". If an ECG trace is
+    uploaded, it must be accompanied by a heart_rate and
+    vice-versa. Will save this information to the database
+    by either creating new entries or appending to existing
+    lists.
+
+    Args:
+        int: Input MRN to add data to
+        dict: input data with information to assign
+    """
     patient = get_patient_from_db(input_MRN)
     if(patient is False):       # No patient exists in db yet; create new one
         patient = Patient(MRN=input_MRN).save()
@@ -122,6 +184,27 @@ def update_patient_fields(input_MRN, in_data):
 
 # Exact same function as above but for PatientTest class
 def update_patient_fields_pt(input_MRN, in_data):
+    """Same as update_patient_fields but for PatientTest
+    class
+
+    in_data should contain a dict formatted as follows:
+    {
+        "MRN": [int, str]         # can be an int or string
+        "patient_name": str,      # Should be patient MRN
+        "ECG_trace": b64_str      # Image info as b64_string
+        "heart_rate": int         # heart rate of above image
+        "medical_images": b64_str # Image info as b64_string
+    }
+    The only required field is "MRN". If an ECG trace is
+    uploaded, it must be accompanied by a heart_rate and
+    vice-versa. Will save this information to the database
+    by either creating new entries or appending to existing
+    lists.
+
+    Args:
+        int: Input MRN to add data to
+        dict: input data with information to assign
+    """
     patient = get_patient_from_db_pt(input_MRN)
     if(patient is False):       # No patient exists in db yet; create new one
         patient = PatientTest(MRN=input_MRN).save()
@@ -142,6 +225,21 @@ def update_patient_fields_pt(input_MRN, in_data):
 
 # For api/get_patient_from_database route
 def field_from_patient(field, valid_fields, db_item):
+    """Gets specific field from a patient object,
+    making sure field requested is within valid_fields
+
+    Valid fields are: ['MRN', 'patient_name', 'ECG_trace',
+                      'heart_rate', 'receipt_timestamps',
+                      'medical_image']
+
+    Args:
+        str: field, a string of the valid fields
+        valid_fields: the above list
+        QuerySet: patient object from database
+
+    Returns:
+        int/list/str: requested field from patient
+    """
     db_fields = [db_item.MRN, db_item.patient_name, db_item.ECG_trace,
                  db_item.heart_rate, db_item.receipt_timestamps,
                  db_item.medical_image]
