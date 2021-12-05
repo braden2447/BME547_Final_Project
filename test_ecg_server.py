@@ -3,7 +3,7 @@ from api.shared_methods import get_patient_from_db, get_patient_from_db_pt
 from database_init import PatientTest
 
 
-def test_get_mrn_route():
+def test_get_mrns_from_database():
     from api.shared_methods import get_mrns_from_database
     # Add patients to test database
     clear_test_database()
@@ -45,6 +45,54 @@ def test_post_new_patient_info_route():
     assert answer_patient.heart_rate == expected_patient.heart_rate
     assert (answer_patient.medical_image[0][:20] ==
             expected_patient.medical_image[0][:20])
+    clear_test_database()
+
+
+def test_field_from_patient():
+    from api.shared_methods import field_from_patient
+
+    # Add patients to test database
+    from api.shared_methods import update_patient_fields_pt
+    import image_toolbox as itb
+    clear_test_database()
+
+    # Test that patient is added successfully to database
+    b64_image = itb.file_to_b64("images/test_image.png")
+    b64_medical_image = itb.file_to_b64("images/esophagus2.jpg")
+    MRN = 5
+    pat5_info_1 = {
+        'MRN': MRN,
+        'patient_name': "Bob Boyles",
+        'ECG_trace': b64_image,
+        'heart_rate': 60,
+        'medical_image': b64_medical_image
+    }
+    update_patient_fields_pt(MRN, pat5_info_1)
+    pat5_info_2 = {
+        'MRN': MRN,
+        'ECG_trace': b64_image,
+        'heart_rate': 65,
+        'medical_image': b64_medical_image
+    }
+    update_patient_fields_pt(MRN, pat5_info_2)
+
+    valid_fields = ['MRN', 'patient_name', 'ECG_trace',
+                    'heart_rate', 'receipt_timestamps', 'medical_image']
+    patient = get_patient_from_db_pt(MRN)
+
+    expected = [5, "Bob Boyles", [b64_image, b64_image], [60, 65],
+                [b64_medical_image, b64_medical_image]]
+
+    result, sc = field_from_patient("MRN", valid_fields, patient)
+    assert result == expected[0]
+    result, sc = field_from_patient("patient_name", valid_fields, patient)
+    assert result == expected[1]
+    result, sc = field_from_patient("ECG_trace", valid_fields, patient)
+    assert result == expected[2]
+    result, sc = field_from_patient("heart_rate", valid_fields, patient)
+    assert result == expected[3]
+    result, sc = field_from_patient("medical_image", valid_fields, patient)
+    assert result == expected[4]
     clear_test_database()
 
 
