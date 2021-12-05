@@ -1,13 +1,17 @@
+import requests
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 from PIL import Image, ImageTk
-from datetime import datetime as dt
 from ECG_analysis import read_data, manipulate_data, filter_data
+from api.shared_methods import str_to_int
 
 # Image toolbox imports
 import base64
 import io
 import os
+
+# Server path
+path = "http://127.0.0.1:5000"
 
 # Declare global variable to hold med img and ecg filenames
 global med_img_filename
@@ -50,8 +54,33 @@ def img_to_b64_str(filename):
     return b64_string
 
 
-def patient_dict_upload(mrn, name, time, ecg, med):
-    pass
+def create_pat_dict(mrn, name, hr, ecg, med):  # TEST THIS
+    pat_dict = {"MRN": mrn}
+    if name != "":
+        pat_dict["patient_name"] = name
+    if ecg is not None:
+        pat_dict["ECG_trace"] = ecg
+        pat_dict["heart_rate"] = hr
+    if med is not None:
+        pat_dict["medical_image"] = med
+    return pat_dict
+
+
+def patient_dict_upload(mrn, name, hr, ecg, med):
+    check = str_to_int(mrn)
+    if(not check[1]):
+        messagebox.showinfo("Error", "MRN must be an integer value")
+        return  # if user tries to input non-integer MRN
+    mrn_int = check[0]
+
+    # Create patient dictionary to upload
+    pat_dict = create_pat_dict(mrn_int, name, hr, ecg, med)
+    print(pat_dict)
+
+    # API route
+    r = requests.post(path + "/api/post_new_patient_info", json=pat_dict)
+    print(r.status_code)
+    print(r.text)
 
 
 def patient_gui():
@@ -68,6 +97,7 @@ def patient_gui():
         med_img_label.image = tk_image  # saving this variable
 
         # Save filename to global variable for img upload
+        global med_img_filename
         med_img_filename = filename
 
     def ecg_btn_cmd():
@@ -91,8 +121,6 @@ def patient_gui():
         # Send json dict to server to store in database
         name = name_data.get()
         mrn = mrn_data.get()
-        timestamp = dt.now()
-        timestamp = timestamp.strftime("%Y-%m-%d %H:%M:%S")
         if mrn == "":
             messagebox.showinfo("Error",
                                 "Must enter MRN to upload patient data")
@@ -101,15 +129,19 @@ def patient_gui():
         # Check if images exist, convert to b64str
         if os.path.exists("ecg_trace.jpg"):  # ECG file exists
             ecg_upload_str = img_to_b64_str("ecg_trace.jpg")
+            hr = int(hr_value_label.cget("text"))
         else:
             ecg_upload_str = None
+            hr = None
+
+        global med_img_filename
         if med_img_filename is None:         # Blank med img
             med_upload_str = None
         else:
             med_upload_str = img_to_b64_str(med_img_filename)
 
         # Dict creation and server function call
-        patient_dict_upload(mrn, name, timestamp,
+        patient_dict_upload(mrn, name, hr,
                             ecg_upload_str, med_upload_str)
 
     def clear_btn_cmd():
@@ -120,6 +152,7 @@ def patient_gui():
         # Return med image to transparent image
         med_img_label.configure(image=med_img_placeholder)
         med_img_label.image = med_img_placeholder
+        global med_img_filename
         med_img_filename = None
 
         # Clear HR value and ecg image
@@ -129,6 +162,10 @@ def patient_gui():
 
         ecg_img_label.configure(image=ecg_img_placeholder)
         ecg_img_label.image = ecg_img_placeholder
+
+        # Delete ECG trace file
+        if os.path.exists("ecg_trace.jpg"):
+            os.remove("ecg_trace.jpg")
 
     def exit_btn_cmd():
         root.destroy()
@@ -146,11 +183,11 @@ def patient_gui():
 
     # Patient MRN label/box
     mrn_label = ttk.Label(root, text="Patient MRN")
-    mrn_label.grid(column=2, row=0, padx=(10, 12), pady=(10, 0))
+    mrn_label.grid(column=2, row=0, columnspan=2, padx=(10, 12), pady=(10, 0))
 
     mrn_data = tk.StringVar()
     mrn_box = ttk.Entry(root, width=10, textvariable=mrn_data)
-    mrn_box.grid(column=2, row=1, padx=(10, 10), pady=(5, 20))
+    mrn_box.grid(column=2, row=1, columnspan=2, padx=(10, 10), pady=(5, 20))
 
     # Medical image label and blank medical image
     medical_img_label = ttk.Label(root, text="Medical Image")
@@ -162,7 +199,7 @@ def patient_gui():
 
     # ECG trace label and blank ECG image
     ecg_data_label = ttk.Label(root, text="Analyze ECG Data")
-    ecg_data_label.grid(column=2, row=2)
+    ecg_data_label.grid(column=2, row=2, columnspan=2)
 
     ecg_img_placeholder = load_and_resize_image("images/Transparent.png")
     ecg_img_label = ttk.Label(root, image=ecg_img_placeholder)
@@ -170,10 +207,10 @@ def patient_gui():
 
     # HR label and blank value label
     hr_label = ttk.Label(root, text="HR (bpm):")
-    hr_label.grid(column=2, row=5, padx=(0, 20), pady=(20, 20))
+    hr_label.grid(column=2, row=5, columnspan=2, padx=(0, 25), pady=(20, 20))
 
     hr_value_label = ttk.Label(root, text='')
-    hr_value_label.grid(column=2, row=5, columnspan=2, pady=(20, 20))
+    hr_value_label.grid(column=3, row=5, padx=(0, 75), pady=(20, 20))
 
     # Action buttons
     medical_img_btn = ttk.Button(root, text="Select image file",
@@ -182,15 +219,16 @@ def patient_gui():
 
     ecg_data_btn = ttk.Button(root, text="Select ECG data file",
                               command=ecg_btn_cmd)
-    ecg_data_btn.grid(column=2, row=3, padx=(10, 10), pady=(5, 20))
+    ecg_data_btn.grid(column=2, row=3, columnspan=2,
+                      padx=(10, 10), pady=(5, 20))
 
     upload_btn = ttk.Button(root, text="UPLOAD",
                             command=upload_btn_cmd)
-    upload_btn.grid(column=2, row=6)
+    upload_btn.grid(column=2, row=6, padx=(27, 0))
 
     clear_btn = ttk.Button(root, text="CLEAR ALL",
                            command=clear_btn_cmd)
-    clear_btn.grid(column=3, row=6, padx=(0, 20))
+    clear_btn.grid(column=3, row=6, padx=(40, 20))
 
     exit_btn = ttk.Button(root, text="EXIT",
                           command=exit_btn_cmd)
