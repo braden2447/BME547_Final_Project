@@ -93,7 +93,7 @@ def get_patient_from_db(MRN):
 
 
 # For api/post_new_patient_info route
-def update_patient_fields(input_MRN, in_data):    
+def update_patient_fields(input_MRN, in_data):
     patient = get_patient_from_db(input_MRN)
     if(patient is False):       # No patient exists in db yet; create new one
         patient = Patient(MRN=input_MRN).save()
@@ -103,7 +103,8 @@ def update_patient_fields(input_MRN, in_data):
         patient.patient_name = in_data['patient_name']
     if 'ECG_trace' in keys:
         patient.ECG_trace.append(in_data['ECG_trace'])
-        patient.receipt_timestamps.append(dt.now().strftime("%Y-%m-%d %H:%M:%S"))
+        now_time = dt.now().strftime("%Y-%m-%d %H:%M:%S")
+        patient.receipt_timestamps.append(now_time)
     if 'heart_rate' in keys:
         patient.heart_rate.append(str_to_int(in_data['heart_rate'])[0])
     if 'medical_image' in keys:
@@ -112,7 +113,7 @@ def update_patient_fields(input_MRN, in_data):
 
 
 # Exact same function as above but for PatientTest class
-def update_patient_fields_pt(input_MRN, in_data):    
+def update_patient_fields_pt(input_MRN, in_data):
     patient = get_patient_from_db(input_MRN)
     if(patient is False):       # No patient exists in db yet; create new one
         patient = PatientTest(MRN=input_MRN).save()
@@ -122,7 +123,8 @@ def update_patient_fields_pt(input_MRN, in_data):
         patient.patient_name = in_data['patient_name']
     if 'ECG_trace' in keys:
         patient.ECG_trace.append(in_data['ECG_trace'])
-        patient.receipt_timestamps.append(dt.now().strftime("%Y-%m-%d %H:%M:%S"))
+        now_time = dt.now().strftime("%Y-%m-%d %H:%M:%S")
+        patient.receipt_timestamps.append(now_time)
     if 'heart_rate' in keys:
         patient.heart_rate.append(str_to_int(in_data['heart_rate'])[0])
     if 'medical_image' in keys:
