@@ -131,6 +131,7 @@ def filter_data(time, voltage, metrics):
                             show=False)
 
     # Matplotlib plot for final project
+    plt.clf()
     plt.plot(volt_filtered[0], volt_filtered[1])
     plt.xlabel('Time (s)')
     plt.ylabel('Amplitude')

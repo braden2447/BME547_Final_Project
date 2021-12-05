@@ -113,8 +113,36 @@ def test_img_to_b64_str():
     assert answer[0:20] == expected
 
 
-def test_patient_dict_upload():
-    pass
+@pytest.mark.parametrize("input, expected", [
+    (60, (60, True)),
+    (-4, (-4, True)),
+    (-1, (-1, True)),
+    ("60", (60, True)),
+    ("-4", (-4, True)),
+    ("-1", (-1, True)),
+    ("Python", (-1, False)),
+    ("negative one", (-1, False)),
+    ("Five", (-1, False)),
+    ("", (-1, False)),
+    (100, (100, True))])
+def test_str_to_int(input, expected):
+    from api.shared_methods import str_to_int
+    answer = str_to_int(input)
+    assert answer == expected
+
+
+@pytest.mark.parametrize("mrn, name, hr, ecg, med, expected", [
+    (1, "Ann Ables", None, None, None,
+     {"MRN": 1, "patient_name": "Ann Ables"}),
+    (2, "", 75, None, None,
+     {"MRN": 2}),
+    (3, "Bob Boyles", 65, "ecg_b64_str", "med_b64_str",
+     {"MRN": 3, "patient_name": "Bob Boyles", "ECG_trace": "ecg_b64_str",
+      "heart_rate": 65, "medical_image": "med_b64_str"})])
+def test_create_pat_dict(mrn, name, hr, ecg, med, expected):
+    from patient_gui import create_pat_dict
+    answer = create_pat_dict(mrn, name, hr, ecg, med)
+    assert answer == expected
 
 
 def clear_test_database():
