@@ -1,3 +1,7 @@
+from database_init import Patient
+from pymodm import errors as pymodm_errors
+
+
 def validate_dict_input(in_data, expected_keys):
     """Validate the presence of expected keys, value types of
     in_data
@@ -77,3 +81,11 @@ def get_mrns_from_database(results):
         MRN_list.append(item.MRN)
 
     return MRN_list
+
+
+def get_patient_from_db(MRN):
+    try:
+        db_item = Patient.objects.raw({"_id": MRN}).first()
+    except pymodm_errors.DoesNotExist:
+        return False
+    return db_item

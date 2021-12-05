@@ -4,7 +4,6 @@ from flask import Flask, request, jsonify
 from pymodm import errors as pymodm_errors
 from api.shared_methods import validate_dict_input
 from api.shared_methods import str_to_int
-from api.shared_methods import get_patient_from_db
 
 
 @app.route('/api/post_new_patient_info', methods=['POST'])
@@ -21,25 +20,27 @@ def post_new_patient():
 
     update_patient_fields(MRN, in_data)
 
-    return "Patient added to database", 200
+    return "Patient info added to database", 200
 
 
-def update_patient_fields(MRN, in_data):
-    patient = get_patient_from_db(MRN)
+def update_patient_fields(input_MRN, in_data):
+    from api.shared_methods import get_patient_from_db
+    patient = get_patient_from_db(input_MRN)
     if(patient is False):       # No patient exists in db yet; create new one
-        patient = Patient(MRN=MRN).save()
+        patient = Patient(MRN=input_MRN).save()
+    keys = list(in_data.keys())
 
-    if 'patient_name' in in_data.keys:
+    if 'patient_name' in keys:
         patient.patient_name = in_data['patient_name']
-    if 'ECG_Trace' in in_data.keys:
+    if 'ECG_Trace' in keys:
         patient.ECG_trace.append(in_data['ECG_Trace'])
-    if 'heart_rate' in in_data.keys:
+    if 'heart_rate' in keys:
         patient.heart_rate.append(in_data['heart_rate'])
-    if 'medical_image' in in_data.keys:
+    if 'medical_image' in keys:
         patient.medical_image.append(in_data['medical_image'])
-    if 'reciept_timestamps' in in_data.keys:
+    if 'reciept_timestamps' in keys:
         patient.reciept_timestamps.append(in_data['reciept_timestamps'])
-
+    patient.save()
 
 # The upload may also include a name, medical image, and/or heart
 # rate & ECG image

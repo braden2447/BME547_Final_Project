@@ -13,7 +13,7 @@ class Patient(MongoModel):
     MRN = fields.IntegerField(primary_key=True)          # Medical Record Number
     patient_name = fields.CharField()                    # Patient Name
     ECG_Trace = fields.ListField(fields.CharField())     # ECG Images as b64
-    heart_rate = fields.IntegerField()                   # Heart Rate Data
+    heart_rate = fields.ListField(fields.IntegerField()) # Heart Rate Data
     reciept_timestamps = fields.DateTimeField()          # Datetime timestamps
     medical_image = fields.ListField(fields.CharField()) # Medical Images as b64
 

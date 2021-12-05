@@ -2,8 +2,7 @@ import requests
 from PIL import Image
 from database_init import Patient, PatientTest
 from datetime import datetime as dt
-import base64
-import io
+import image_toolbox as itb
 
 host_route = "http://127.0.0.1:5000/"
 
@@ -14,28 +13,15 @@ host_route = "http://127.0.0.1:5000/"
 # print(type(r.json()))
 
 
-# Testing Patient class & Database Connection
-x = PatientTest.objects.raw({"_id": 1}).first()
-def read_file_as_b64(image_path):
-    with open(image_path, "rb") as image_file:
-        b64_bytes = base64.b64encode(image_file.read())
-    b64_string = str(b64_bytes, encoding='utf-8')
-    return b64_string
-# x.MRN = 1
-# x.patient_name = "Anuj Som"
-# img_obj = Image.open("images/acl1.jpg").convert("P")
-# # print(type(img_obj))
-# img_obj2 = img_obj.convert('P')
-# img_obj.show()
-# print(type(img_obj2))
-# img_obj2.show()
-# x.ECG_Trace.append(img_obj)
-# print(x)
-# for i in x:
-#     print(i)
-# x.ECG_Trace = [img_obj]
-# x.reciept_timestamps.append(dt.now())
-# x.save()
-
-# PatientTest.objects.raw({}).delete()
-# Patient.objects.raw({}).delete()
+# Testing post_new_patient_info route
+b64_image = itb.file_to_b64("images/test_image.png")
+b64_medical_image = itb.file_to_b64("images/esophagus2.jpg")
+pat1_info = {
+    'MRN': 1,
+    'patient_name': "John Smith",
+    'ECG_Trace': b64_image,
+    'heart_rate': 65,
+    'medical_image': b64_medical_image
+}
+r = requests.post(host_route + "api/post_new_patient_info", json=pat1_info)
+print("{}: {}".format(r.status_code, r.text))
