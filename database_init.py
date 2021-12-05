@@ -33,11 +33,11 @@ class PatientTest(MongoModel):
     medical_image = fields.ListField(fields.CharField())
 
 
-def get_server():
+def get_database():
     return mongodb_server
 
 
-def clean_server():
+def clean_database():
     Patient.objects.raw({}).delete()
 
 # from PIL import Image

@@ -24,6 +24,7 @@ def start_server():
     import api.get_patient_from_database_route
     import api.post_new_patient_info_route
     import api.shared_methods
+    import api.clear_database_route
     app.run()
 
 
