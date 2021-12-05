@@ -1,3 +1,8 @@
+from database_init import Patient, PatientTest
+from pymodm import errors as pymodm_errors
+from datetime import datetime as dt
+
+
 def validate_dict_input(in_data, expected_keys):
     """Validate the presence of expected keys, value types of
     in_data
@@ -79,6 +84,57 @@ def get_mrns_from_database(results):
     return MRN_list
 
 
-# For api/get_patient_from_database/MRN route
-def get_patient_from_database(MRN):
-    None
+def get_patient_from_db(MRN):
+    try:
+        db_item = Patient.objects.raw({"_id": MRN}).first()
+    except pymodm_errors.DoesNotExist:
+        return False
+    return db_item
+
+
+def get_patient_from_db_pt(MRN):
+    try:
+        db_item = PatientTest.objects.raw({"_id": MRN}).first()
+    except pymodm_errors.DoesNotExist:
+        return False
+    return db_item
+
+
+# For api/post_new_patient_info route
+def update_patient_fields(input_MRN, in_data):
+    patient = get_patient_from_db(input_MRN)
+    if(patient is False):       # No patient exists in db yet; create new one
+        patient = Patient(MRN=input_MRN).save()
+    keys = list(in_data.keys())
+
+    if 'patient_name' in keys:
+        patient.patient_name = in_data['patient_name']
+    if 'ECG_trace' in keys:
+        patient.ECG_trace.append(in_data['ECG_trace'])
+        now_time = dt.now().strftime("%Y-%m-%d %H:%M:%S")
+        patient.receipt_timestamps.append(now_time)
+    if 'heart_rate' in keys:
+        patient.heart_rate.append(str_to_int(in_data['heart_rate'])[0])
+    if 'medical_image' in keys:
+        patient.medical_image.append(in_data['medical_image'])
+    patient.save()
+
+
+# Exact same function as above but for PatientTest class
+def update_patient_fields_pt(input_MRN, in_data):
+    patient = get_patient_from_db_pt(input_MRN)
+    if(patient is False):       # No patient exists in db yet; create new one
+        patient = PatientTest(MRN=input_MRN).save()
+    keys = list(in_data.keys())
+
+    if 'patient_name' in keys:
+        patient.patient_name = in_data['patient_name']
+    if 'ECG_trace' in keys:
+        patient.ECG_trace.append(in_data['ECG_trace'])
+        now_time = dt.now().strftime("%Y-%m-%d %H:%M:%S")
+        patient.receipt_timestamps.append(now_time)
+    if 'heart_rate' in keys:
+        patient.heart_rate.append(str_to_int(in_data['heart_rate'])[0])
+    if 'medical_image' in keys:
+        patient.medical_image.append(in_data['medical_image'])
+    patient.save()
