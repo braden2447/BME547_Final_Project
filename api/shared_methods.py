@@ -92,6 +92,14 @@ def get_patient_from_db(MRN):
     return db_item
 
 
+def get_patient_from_db_pt(MRN):
+    try:
+        db_item = PatientTest.objects.raw({"_id": MRN}).first()
+    except pymodm_errors.DoesNotExist:
+        return False
+    return db_item
+
+
 # For api/post_new_patient_info route
 def update_patient_fields(input_MRN, in_data):
     patient = get_patient_from_db(input_MRN)
@@ -114,7 +122,7 @@ def update_patient_fields(input_MRN, in_data):
 
 # Exact same function as above but for PatientTest class
 def update_patient_fields_pt(input_MRN, in_data):
-    patient = get_patient_from_db(input_MRN)
+    patient = get_patient_from_db_pt(input_MRN)
     if(patient is False):       # No patient exists in db yet; create new one
         patient = PatientTest(MRN=input_MRN).save()
     keys = list(in_data.keys())
