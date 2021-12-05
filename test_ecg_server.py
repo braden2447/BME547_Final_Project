@@ -93,6 +93,7 @@ def test_field_from_patient():
     assert result == expected[3]
     result, sc = field_from_patient("medical_image", valid_fields, patient)
     assert result == expected[4]
+    clear_test_database()
 
 
 @pytest.mark.parametrize("original_size, expected", [
