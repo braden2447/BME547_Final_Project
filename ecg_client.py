@@ -1,6 +1,6 @@
 import requests
 from PIL import Image
-from database_init import Patient, PatientTest, clean_server
+from database_init import Patient, PatientTest, clean_database
 from datetime import datetime as dt
 import image_toolbox as itb
 
@@ -21,7 +21,7 @@ host_route = "http://127.0.0.1:5000/"
 # x.reciept_timestamps.append(dt.now())
 # x.save()
 
-clean_server()
+clean_database()
 
 # Testing post_new_patient_info route
 pat1_info = {
