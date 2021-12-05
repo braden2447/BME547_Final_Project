@@ -138,3 +138,18 @@ def update_patient_fields_pt(input_MRN, in_data):
     if 'medical_image' in keys:
         patient.medical_image.append(in_data['medical_image'])
     patient.save()
+
+
+# For api/get_patient_from_database route
+def field_from_patient(field, valid_fields, db_item):
+    db_fields = [db_item.MRN, db_item.patient_name, db_item.ECG_trace,
+                 db_item.heart_rate, db_item.receipt_timestamps, db_item.medical_image]
+
+    for iterator, fields in enumerate(valid_fields):
+        if(field == fields):
+            try:
+                item = db_fields[iterator]
+                return item, 200
+            except pymodm_errors.DoesNotExist:
+                return "{} field does not exist".format(field), 400
+    return "Passed iterator without returning", 400
