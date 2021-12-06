@@ -7,7 +7,7 @@ import image_toolbox as it
 
 # Server path
 global path
-path = "http://127.0.0.1:5000"
+path = "http://vcm-23156.vm.duke.edu:5000"
 
 # Define global image and mrn variables
 global med_img_str

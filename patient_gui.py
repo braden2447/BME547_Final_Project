@@ -8,7 +8,7 @@ import image_toolbox as it
 import os
 
 # Server path
-path = "http://127.0.0.1:5000"
+path = "http://vcm-23156.vm.duke.edu:5000"
 
 # Declare global variable to hold med img and ecg filenames
 global med_img_filename
