@@ -73,5 +73,73 @@ To shut down the program and exit the GUI, the user can click the ```EXIT``` but
 
 ## Server API Reference Guide
 
+The ECG server is backend support for the Monitoring GUI and Patient-Side GUI systems and allows as an interface with information stored in the MongoDB Atlas Database. 
+
+Server Routes:
+
+### api/get_mrn
+
+Accepts get request and returns list of existing MRNs within database. Calling this method will return a jsonify'd list of 
+MRN integers within the database. If there are no patients in the database, the list will return empty.
+
+### api/post_new_patient_info
+
+Accepts json request and posts new patient information or updates patient information within database.
+
+input json should contain a dict formatted as follows:
+
+```python
+{
+    "MRN": int, str,          # can be an int or integer cast-able string
+    "patient_name": str,      # Should be patient MRN
+    "ECG_trace": str,         # Image info as b64_string
+    "heart_rate": int, str,   # heart rate of above image, as int or integer cast-able string
+    "medical_images": str     # Image info as b64_string
+}
+```
+
+The only required field is "MRN". If an ECG trace is
+uploaded, it must be accompanied by a heart_rate and
+vice-versa, else an error will be thrown. Route will
+save this information to the database by either
+creating new entries or appending to existing lists.
+
+Route will return error string and status code. 
+
+### api/get_patient_from_database/<MRN>/<field>
+
+Allows user to input MRN and field from patient they are interested in, and returns the information 
+pulled from the database as specified by field. Valid field strings are: 
+
+'MRN', 'patient_name', 'ECG_trace', 'heart_rate', 'receipt_timestamps', and 'medical_image'
+
+This route will return the requested field from the patient information stored within the database. 
+
+### api/clear_db/<Password>
+
+Developer method which simply clears contents of MongoDB Database. Correct password is required (Password: BME547). 
+
+To use, simply send get request to host/api/clear_db/<Password> to clear database contents.
+
 
 ## MongoDB Database Structure
+
+The database for this project is hosted on a MongoDB Atlas cluster, hosted in AWS N. Virginia (us-east-1). 
+
+The database holds collection patient, which has valid fields constructed in PyMODM as follows:
+
+```python
+'MRN' (primary key): fields.IntegerField(primary_key=True)
+'patient_name': fields.CharField()
+'ECG_trace': fields.ListField(fields.CharField())
+'heart_rate': fields.ListField(fields.IntegerField())
+'receipt_timestamps': fields.ListField(fields.CharField())
+'medical_image': fields.ListField(fields.CharField())
+```
+
+It is noted that MRN is an integer field, however as it is the primary key it is referenced as _id.
+
+The ListFields 'ECG_trace', 'heart_rate', and 'receipt_timestamps' are lists of the same length which store information
+about index-specific ECG_traces, namely the trace image plot, trace heart rate, and timestamp the image was uploaded to the
+database (as datetime format: "%Y-%m-%d %H:%M:%S").
+

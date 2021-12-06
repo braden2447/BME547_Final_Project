@@ -46,14 +46,3 @@ def clean_database():
     """Deletes all contents of the Patient database
     """
     Patient.objects.raw({}).delete()
-
-# from PIL import Image
-# # Testing Patient class & Database Connection
-# import image_toolbox as tb
-# x = PatientTest()
-# x.MRN = 1
-# x.patient_name = "Anuj Som"
-# x.ECG_trace.append(tb.file_to_b64("images/test_image.png"))
-# x.heart_rate.append(60)
-# x.receipt_timestamps.append(dt.now().strftime("%Y-%m-%d %H:%M:%S"))
-# x.save()

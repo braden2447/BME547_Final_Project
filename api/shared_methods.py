@@ -80,8 +80,6 @@ def get_mrns_from_database(results):
     """Accepts json request and posts new patient heart rate
     to server database.
 
-    Method curated by Braden Garrison
-
     json request should contain a dict formatted as follows:
     {
         "patient_id": int, # Should be patient MRN
@@ -148,10 +146,10 @@ def update_patient_fields(input_MRN, in_data):
 
     in_data should contain a dict formatted as follows:
     {
-        "MRN": [int, str]         # can be an int or string
+        "MRN": int, str           # can be an int or string
         "patient_name": str,      # Should be patient MRN
         "ECG_trace": b64_str      # Image info as b64_string
-        "heart_rate": int         # heart rate of above image
+        "heart_rate": int, str    # heart rate of above image
         "medical_images": b64_str # Image info as b64_string
     }
     The only required field is "MRN". If an ECG trace is
@@ -189,10 +187,10 @@ def update_patient_fields_pt(input_MRN, in_data):
 
     in_data should contain a dict formatted as follows:
     {
-        "MRN": [int, str]         # can be an int or string
+        "MRN": int, str           # can be an int or string
         "patient_name": str,      # Should be patient MRN
         "ECG_trace": b64_str      # Image info as b64_string
-        "heart_rate": int         # heart rate of above image
+        "heart_rate": int, str    # heart rate of above image
         "medical_images": b64_str # Image info as b64_string
     }
     The only required field is "MRN". If an ECG trace is

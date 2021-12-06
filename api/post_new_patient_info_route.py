@@ -8,23 +8,26 @@ from api.shared_methods import update_patient_fields
 
 @app.route('/api/post_new_patient_info', methods=['POST'])
 def post_new_patient():
-    """Accepts json request and posts new patient heart rate
-    to server database.
+    """Accepts json request and posts new patient information
+    or updates patient information within database.
 
-    Method curated by Braden Garrison
-
-    json request should contain a dict formatted as follows:
+    input json should contain a dict formatted as follows:
     {
-        "patient_id": int, # Should be patient MRN
-        "heart_rate_average_since": str # Should be formatted in form:
-                                        # "2018-03-09 11:00:36"
+        "MRN": int, str           # can be an int or string
+        "patient_name": str,      # Should be patient MRN
+        "ECG_trace": b64_str      # Image info as b64_string
+        "heart_rate": int, str    # heart rate of above image
+        "medical_images": b64_str # Image info as b64_string
     }
-    This method will be used to calculate and return the heart
-    rate interval average of a specified patient since the given
-    date/time.
+    The only required field is "MRN". If an ECG trace is
+    uploaded, it must be accompanied by a heart_rate and
+    vice-versa. Route will save this information to the database
+    by either creating new entries or appending to existing
+    lists.
 
     Returns:
-        int: heart rate interval average
+        str: Error string
+        int: Status code
     """
     in_data = request.get_json()
     # Validate input has MRN
