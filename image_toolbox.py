@@ -21,6 +21,7 @@ def b64_to_file(b64_string, new_filename):
     image_bytes = base64.b64decode(b64_string)
     with open(new_filename, "wb") as out_file:
         out_file.write(image_bytes)
+    return None
 
 
 def file_to_b64(filename):

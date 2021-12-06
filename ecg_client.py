@@ -29,7 +29,7 @@ pat2_info = {
 r = requests.post(host_route + "api/post_new_patient_info", json=pat2_info)
 print("{}: {}".format(r.status_code, r.text))
 
-b64_image = itb.file_to_b64("images/test_image.png")
+b64_image = itb.file_to_b64("images/ecg_trace.jpg")
 pat3_info = {
     'MRN': 3,
     'patient_name': "Duke Duncan",
@@ -39,7 +39,7 @@ r = requests.post(host_route + "api/post_new_patient_info", json=pat3_info)
 print("{}: {}".format(r.status_code, r.text))
 # We expect an error since no heart_rate posted along with ECG_trace
 
-b64_image = itb.file_to_b64("images/test_image.png")
+b64_image = itb.file_to_b64("images/ecg_trace.jpg")
 pat4_info = {
     'MRN': 4,
     'patient_name': "Duke Duncan",
@@ -50,7 +50,7 @@ r = requests.post(host_route + "api/post_new_patient_info", json=pat4_info)
 print("{}: {}".format(r.status_code, r.text))
 # We now expect this to go through since heart_rate is posted
 
-b64_image = itb.file_to_b64("images/test_image.png")
+b64_image = itb.file_to_b64("images/ecg_trace.jpg")
 b64_medical_image = itb.file_to_b64("images/esophagus2.jpg")
 pat5_info = {
     'MRN': 5,
@@ -94,7 +94,7 @@ r = requests.post(host_route + "api/post_new_patient_info", json=pat6_info)
 print("{}: {}".format(r.status_code, r.text))
 
 # Posts with incorrect types/weird clauses
-b64_image = itb.file_to_b64("images/test_image.png")
+b64_image = itb.file_to_b64("images/ecg_trace.jpg")
 patTest_info = {
     'MRN': "five"
 }

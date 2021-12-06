@@ -106,13 +106,6 @@ def test_adj_factor(original_size, expected):
     assert adj_factor(original_size) == expected
 
 
-def test_img_to_b64_str():
-    from patient_gui import img_to_b64_str
-    answer = img_to_b64_str("images/test_image.png")
-    expected = "iVBORw0KGgoAAAANSUhE"
-    assert answer[0:20] == expected
-
-
 @pytest.mark.parametrize("input, expected", [
     (60, (60, True)),
     (-4, (-4, True)),
@@ -142,6 +135,27 @@ def test_str_to_int(input, expected):
 def test_create_pat_dict(mrn, name, hr, ecg, med, expected):
     from patient_gui import create_pat_dict
     answer = create_pat_dict(mrn, name, hr, ecg, med)
+    assert answer == expected
+
+
+@pytest.mark.parametrize("list, expected", [
+    ([], []),
+    (["2021-12-5 12:00:00"], ["#1: 2021-12-5 12:00:00"]),
+    (["2021-12-5 13:00:00", "2021-12-5 14:00:00"],
+     ["#1: 2021-12-5 13:00:00", "#2: 2021-12-5 14:00:00"])])
+def test_enumerate_times(list, expected):
+    from monitoring_gui import enumerate_times
+    answer = enumerate_times(list)
+    assert answer == expected
+
+
+@pytest.mark.parametrize("list, expected", [
+    ([], []),
+    (["string1"], ["Medical Image #1"]),
+    (["string1", "string2"], ["Medical Image #1", "Medical Image #2"])])
+def test_enumerate_med_img(list, expected):
+    from monitoring_gui import enumerate_med_img
+    answer = enumerate_med_img(list)
     assert answer == expected
 
 
