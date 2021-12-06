@@ -109,11 +109,11 @@ pulled from the database as specified by field. Valid field strings are:
 
 This route will return the requested field from the patient information stored within the database. 
 
-### api/clear_db/<Password>
+### api/clear_db/{Password}
 
 Developer method which simply clears contents of MongoDB Database. Correct password is required (Password: BME547). 
 
-To use, simply send get request to host/api/clear_db/<Password> to clear database contents.
+To use, simply send get request to host/api/clear_db/{Password} to clear database contents.
 
 ## MongoDB Database Structure
 
