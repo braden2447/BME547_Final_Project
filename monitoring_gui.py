@@ -2,16 +2,7 @@ import requests
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 from PIL import Image, ImageTk
-import threading
 from patient_gui import load_and_resize_image, adj_factor
-
-# Image toolbox imports
-import base64
-import io
-import matplotlib.image as mpimg
-from matplotlib import pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from skimage.io import imsave
 import image_toolbox as it
 
 # Server path
@@ -20,12 +11,27 @@ path = "http://127.0.0.1:5000"
 
 # Define global image and mrn variables
 global med_img_str
+med_img_str = None
 global hist_ecg_img_str
+hist_ecg_img_str = None
 global latest_ecg_img_str
+latest_ecg_img_str = None
 global global_mrn
 
 
 def enumerate_times(list):
+    """Enumerates through list to create list based off index values
+
+    This function takes a list of timestamp string values and creates
+    a new list containing index labels to be displayed in the
+    historical_ecg_label ECG combobox.
+
+    Args:
+        list (list): list of string values containing timestamp data
+
+    Returns:
+        list: list of strings with timestamps plus index #
+    """
     combo_list = []
     if len(list) != 0:
         for index, value in enumerate(list):
@@ -34,6 +40,17 @@ def enumerate_times(list):
 
 
 def enumerate_med_img(list):
+    """Enumerates through list to create list based off index values
+
+    This function takes a list of b64 strings and simply uses the
+    length to create a list of indexed "Medical Image" labels.
+
+    Args:
+        list (list): list of b64 image string values
+
+    Returns:
+        list: list of strings with "Medical Image #" plus index
+    """
     combo_list = []
     if len(list) != 0:
         for index, value in enumerate(list):
@@ -42,8 +59,36 @@ def enumerate_med_img(list):
 
 
 def monitoring_gui():
+    """GUI function to create Tk loop for monitoring GUI
+
+    This function contains the widget outline for the monitoring
+    station GUI as well as embedded functions for all the GUI
+    functionality. The user is able to select from a list of retrieved
+    patient MRNs to display the MRN and patient name/latest ECG trace
+    if available. The user can also select to display images from lists
+    of historical ECG images or medical images and has the option to save
+    any image to their local computer.
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
 
     def display_ndarray_img(img_ndarray):
+        """Converts ndarray to resized Tk Image
+
+        This function takes matplotlib array variable and converts
+        it first to a PIL image variable, resizes it, then converts it
+        to a Tk Image to be displayed.
+
+        Args:
+            img_ndarray (array): ndarray of image data
+
+        Returns:
+            ImageTk.PhotoImage: PhotoImage variable containing image
+        """
         ndarray_img = Image.fromarray(img_ndarray)
         original_size = ndarray_img.size
         new_sizes = adj_factor(original_size)
@@ -52,6 +97,20 @@ def monitoring_gui():
         return img_to_display
 
     def display_server_img(b64_string, img_widget):
+        """Displays input b64_string as an image in the specified widget
+
+        This function takes a b64 string containing image data, converts
+        it to a Tk Image using the above function, then assigns that
+        image variable to the specified img_widget to be displayed on
+        the GUI.
+
+        Args:
+            b64_string (str): string containing b64 image data
+            img_widget (ttk.Label): ttk Label widget to be configured
+
+        Returns:
+            None
+        """
         # Convert b64 str to ImageTk
         img_ndarray = it.b64_to_ndarray(b64_string)
         img_to_display = display_ndarray_img(img_ndarray)
@@ -61,25 +120,85 @@ def monitoring_gui():
         img_widget.image = img_to_display
 
     def save_file(b64_string, img_type):
+        """Saves specified image as local file
+
+        This function converts an input b64 image string to a file
+        on the user's local computer.
+
+        Args:
+            b64_string (str): string containing b64 image data
+            img_type (str): string specifying ECG or medical image
+
+        Returns:
+            None
+        """
+        if b64_string is None:
+            messagebox.showinfo("Error", "No displayed image to save")
+            return
         new_filename = filedialog.asksaveasfilename(defaultextension='.jpg')
         if new_filename is None:
             messagebox.showinfo("Cancel", (img_type + " save "
                                            "has been canceled"))
+            return
         it.b64_to_file(b64_string, new_filename)
 
     def save_med_img_cmd():
+        """Button command to save medical image
+
+        Activated upon "SAVE MEDICAL IMAGE" button click, this function
+        calls the save_file function.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         global med_img_str
         save_file(med_img_str, "Medical image")
 
     def save_latest_ecg_cmd():
+        """Button command to save latest ECG image
+
+        Activated upon "SAVE LATEST ECG" button click, this function
+        calls the save_file function.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         global latest_ecg_img_str
         save_file(latest_ecg_img_str, "Latest ECG image")
 
     def save_hist_ecg_cmd():
+        """Button command to save historical ECG image
+
+        Activated upon "SAVE HISTORICAL ECG" button click, this function
+        calls the save_file function.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         global hist_ecg_img_str
         save_file(hist_ecg_img_str, "Historical ECG image")
 
     def clear_btn_cmd():
+        """Button command to clear all fields
+
+        Activated upon "CLEAR ALL" button click, this function
+        clears the entire GUI of images and textbox data.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         # Delete populated entry boxes/labels
         mrn_data.set('')
         name_data.set('')
@@ -99,12 +218,47 @@ def monitoring_gui():
         hist_ecg_label.configure(image=tk_image)
         hist_ecg_label.image = tk_image
 
+        # Clear global image variables
+        global med_img_str
+        med_img_str = None
+        global hist_ecg_img_str
+        hist_ecg_img_str = None
+        global latest_ecg_img_str
+        latest_ecg_img_str = None
+
     def get_mrn():
+        """Requests MRN values from database and populates MRN combo
+
+        This function creates a GET request to the ecg_server to
+        access all the posted MRN values in the patient database.
+        The returned list of values is used to populate the "Select
+        Patient by MRN" combobox.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         r = requests.get(path + "/api/get_mrn")
         mrn_req_values = r.json()
         mrn_combo_box["values"] = mrn_req_values
 
     def db_get_req(mrn, info):
+        """Variable function to request any type of patient data
+
+        This function creates a GET request based on the input mrn
+        and data type (info) and returns a jsonified value depending
+        on the info - str for patient name, int for heart rate and
+        timestamp, and list for ECG traces and medical images.
+
+        Args:
+            mrn (int): integer of patient medical record number
+            info (str): string of requested patient info for route
+
+        Returns:
+            str, int, list: jsonified patient info as one of these types
+        """
         global path
         end_route = ("/api/get_patient_from_database/{}/".
                      format(mrn) + info)
@@ -112,18 +266,55 @@ def monitoring_gui():
         return r.json()
 
     def populate_hist_ecg_combo(mrn):
+        """Calls GET request to populate historical ECG combo
+
+        This function calls db_get_req to retrieve a list of posted
+        ECG timestamp receipts for the specified patient MRN. This
+        list is used to populate the historical ECG combobox.
+
+        Args:
+            mrn (int): integer of patient medical record number
+
+        Returns:
+            None
+        """
         timestamp_list = db_get_req(mrn, "receipt_timestamps")
         hist_combo_list = enumerate_times(timestamp_list)
         if len(hist_combo_list) != 0:
             hist_ecg_combo_box["values"] = hist_combo_list
 
     def populate_med_img_combo(mrn):
+        """Calls GET request to populate medical image combo
+
+        This function calls db_get_req to retrieve a list of posted
+        b64 medical image strings for the specified patient MRN. This
+        list is used to populate the medical image combobox.
+
+        Args:
+            mrn (int): integer of patient medical record number
+
+        Returns:
+            None
+        """
         med_img_list = db_get_req(mrn, "medical_image")
         med_combo_list = enumerate_med_img(med_img_list)
         if len(med_combo_list) != 0:
             med_img_combo_box["values"] = med_combo_list
 
     def on_patient_select(event):
+        """Populates data boxes and latest ECG image from selected MRN
+
+        This function responds to a MRN selection event to post GET
+        requests to retrieve patient info and populate the patient name,
+        patient MRN, latest ECG image, heart rate, timestamp, and
+        historical ECG and medical image comboboxes.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         global global_mrn
         global latest_ecg_img_str
         clear_btn_cmd()
@@ -157,6 +348,18 @@ def monitoring_gui():
         populate_med_img_combo(mrn)
 
     def on_ecg_select(event):
+        """Displays selected historical ECG image to GUI
+
+        This function responds to a historical ECG selection to
+        display the selected image by referencing the selection
+        index.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         global global_mrn
         global hist_ecg_img_str
 
@@ -170,6 +373,18 @@ def monitoring_gui():
         hist_ecg_img_str = ecg_to_display
 
     def on_med_img_select(event):
+        """Displays selected medical image to GUI
+
+        This function responds to a medical image selection to
+        display the selected image by referencing the selection
+        index.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         global global_mrn
         global med_img_str
 
@@ -183,6 +398,17 @@ def monitoring_gui():
         med_img_str = med_to_display
 
     def exit_btn_cmd():
+        """Button command to exit GUI and quit code
+
+        Activated upon "EXIT" button press, this function destroys
+        the Tk loop and exits the GUI, quitting the code.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         root.destroy()
 
     root = tk.Tk()

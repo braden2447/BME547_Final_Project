@@ -4,12 +4,8 @@ from tkinter import ttk, filedialog, messagebox
 from PIL import Image, ImageTk
 from ECG_analysis import read_data, manipulate_data, filter_data
 from api.shared_methods import str_to_int
-
-# Image toolbox imports
-import base64
-import io
-import os
 import image_toolbox as it
+import os
 
 # Server path
 path = "http://127.0.0.1:5000"
@@ -20,6 +16,18 @@ med_img_filename = None
 
 
 def adj_factor(original_size):
+    """Calculates adjustment factor to resize images to 300x200
+
+    This function uses the input tuple of original image size
+    to determine image orientation, calculate an adjustment factor,
+    and return a list of new width and height.
+
+    Args:
+        original_size (tuple): tuple of integers of orig width, height
+
+    Returns:
+        list: list of integers with newly-sized width, height
+    """
     # Determine if vertical or horizontal pic, which way to scale
     if original_size[0] > original_size[1]:   # horizontal
         adj_factor = 300/original_size[0]
@@ -32,6 +40,18 @@ def adj_factor(original_size):
 
 
 def load_and_resize_image(filename):
+    """Opens image file and resizes based on adj factor
+
+    This function opens a specified file as a PIL image. The
+    adj_factor function is used to resize the image, and the
+    resulting image is converted to a Tk PhotoImage and returned.
+
+    Args:
+        filename (str): string containing filename of image to load
+
+    Returns:
+        ImageTk.PhotoImage: resized Tk PhotoImage
+    """
     pil_image = Image.open(filename)
     original_size = pil_image.size
     new_sizes = adj_factor(original_size)
@@ -41,6 +61,18 @@ def load_and_resize_image(filename):
 
 
 def analyze_ecg(filename):
+    """Analyzes ECG data file to save ECG trace and return heart rate
+
+    This function calls the ECG_analysis module to analyze a selected
+    ECG data file, plot and save the resulting ECG trace (as filename
+    ecg_trace.jpg), and return the analyzed heart rate as an integer.
+
+    Args:
+        filename (str): string containing filename of ECG data to analyze
+
+    Returns:
+        int: integer containing average heart rate value in bpm
+    """
     metrics = []  # initialize metrics list for data storage
     test_data = read_data(filename)  # open file and convert to text format
     time, voltage = manipulate_data(test_data)  # produce time, voltage lists
@@ -48,7 +80,24 @@ def analyze_ecg(filename):
     return metrics_list[1]
 
 
-def create_pat_dict(mrn, name, hr, ecg, med):  # TEST THIS
+def create_pat_dict(mrn, name, hr, ecg, med):
+    """Creates patient info dict to post to database
+
+    This function scans the input variables to create a dictionary
+    containing only keys that have associated values to be stored
+    and posted to the patient database.
+
+    Args:
+        mrn (int): integer of patient medical record number
+        name (str, None): string containing patient name if present
+        hr (int, None): integer containing heart rate value if present
+        ecg (list, None): list of b64 image strings if present
+        med (list, None): list of b64 med image strings if present
+
+    Returns:
+        dict: patient dictionary containing keys of input patient info,
+              containing at least an "MRN" key
+    """
     pat_dict = {"MRN": mrn}
     if name != "":
         pat_dict["patient_name"] = name
@@ -61,6 +110,23 @@ def create_pat_dict(mrn, name, hr, ecg, med):  # TEST THIS
 
 
 def patient_dict_upload(mrn, name, hr, ecg, med):
+    """Verifies MRN input and creates POST request of patient info
+
+    This function first verifies that the input MRN was an integer
+    then calls the create_pat_dict function to create a patient info
+    dictionary to include as the json of the "post_new_patient_info"
+    POST request.
+
+    Args:
+        mrn (int): integer of patient medical record number
+        name (str, None): string containing patient name if present
+        hr (int, None): integer containing heart rate value if present
+        ecg (list, None): list of b64 image strings if present
+        med (list, None): list of b64 med image strings if present
+
+    Returns:
+        None
+    """
     check = str_to_int(mrn)
     if(not check[1]):
         messagebox.showinfo("Error", "MRN must be an integer value")
@@ -77,8 +143,35 @@ def patient_dict_upload(mrn, name, hr, ecg, med):
 
 
 def patient_gui():
+    """GUI function to create Tk loop for patient-side GUI
+
+    This function contains the widget outline for the patient-side
+    GUI as well as embedded functions for all the GUI functionality.
+    The user is able to connect to a MongoDB database via a server to
+    access, display, and save patient info such as name, MRN,
+    ECG traces, and medical images.
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
 
     def medical_img_btn_cmd():
+        """Button command to display selected med image file
+
+        Activated upon "Select medical image" button press, this function
+        opens a filedialog box and allows the user to select a local medical
+        image file. This image is then loaded, resized, and displayed
+        in the GUI.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         filename = filedialog.askopenfilename(initialdir="BME547_repos")
         if filename == "":
             messagebox.showinfo("Cancel", "You canceled the image load")
@@ -94,6 +187,19 @@ def patient_gui():
         med_img_filename = filename
 
     def ecg_btn_cmd():
+        """Button command to analyze and display ECG data file
+
+        Activated upon "Select ECG data file" button press, this function
+        opens a filedialog box and allows the user to select a local ECG
+        data file. This file is then analyzed using the ECG_analysis module
+        to display the heart rate and ECG trace.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         filename = filedialog.askopenfilename()
         if filename == "":
             messagebox.showinfo("Cancel", "You canceled ECG file selection")
@@ -111,6 +217,20 @@ def patient_gui():
         ecg_img_label.image = ecg_tk_image
 
     def upload_btn_cmd():
+        """Button command to upload displayed patient info to database
+
+        Activated upon "UPLOAD" button press, this function interprets the
+        current GUI state to produce a dictionary containing keys and values
+        to all corresponding text and images displayed. If at least a MRN is
+        present, a POST request is made through the patient_dict_upload
+        function.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         # Send json dict to server to store in database
         name = name_data.get()
         mrn = mrn_data.get()
@@ -138,6 +258,17 @@ def patient_gui():
                             ecg_upload_str, med_upload_str)
 
     def clear_btn_cmd():
+        """Button command to clear all fields
+
+        Activated upon "CLEAR ALL" button click, this function
+        clears the entire GUI of images and textbox data.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         name_box.delete(0, 100)
         mrn_box.delete(0, 10)
         # Add if statement checking if ECG trace and HR label exist
@@ -161,6 +292,17 @@ def patient_gui():
             os.remove("ecg_trace.jpg")
 
     def exit_btn_cmd():
+        """Button command to exit GUI and quit code
+
+        Activated upon "EXIT" button press, this function destroys
+        the Tk loop and exits the GUI, quitting the code.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         root.destroy()
 
     root = tk.Tk()
