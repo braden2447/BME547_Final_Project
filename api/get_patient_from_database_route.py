@@ -2,7 +2,7 @@ from __main__ import app
 from database_init import Patient
 from flask import Flask, json, request, jsonify
 from api.shared_methods import get_mrns_from_database, str_to_int
-from api.shared_methods import field_from_patient, get_patient_from_db
+from api.shared_methods import field_from_patient
 from pymodm import errors as pymodm_errors
 
 
@@ -31,8 +31,9 @@ def get_patient_from_database_route(MRN, field):
         return "Invalid field format: {} not in {}".format(field,
                                                            valid_fields), 400
 
-    db_item = get_patient_from_db(value)
-    if db_item is False:
+    try:
+        db_item = Patient.objects.raw({"_id": value}).first()
+    except pymodm_errors.DoesNotExist:
         return "No patient with MRN in database", 400
 
     # Obtain the requested field from the patient
