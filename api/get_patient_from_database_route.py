@@ -32,7 +32,7 @@ def get_patient_from_database_route(MRN, field):
                                                            valid_fields), 400
 
     db_item = get_patient_from_db(value)
-    if db_item == False:
+    if db_item is False:
         return "No patient with MRN in database", 400
 
     # Obtain the requested field from the patient
