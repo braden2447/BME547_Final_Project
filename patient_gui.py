@@ -9,6 +9,7 @@ from api.shared_methods import str_to_int
 import base64
 import io
 import os
+import image_toolbox as it
 
 # Server path
 path = "http://127.0.0.1:5000"
@@ -47,13 +48,6 @@ def analyze_ecg(filename):
     return metrics_list[1]
 
 
-def img_to_b64_str(filename):
-    with open(filename, "rb") as image_file:
-        b64_bytes = base64.b64encode(image_file.read())
-    b64_string = str(b64_bytes, encoding='utf-8')
-    return b64_string
-
-
 def create_pat_dict(mrn, name, hr, ecg, med):  # TEST THIS
     pat_dict = {"MRN": mrn}
     if name != "":
@@ -75,7 +69,6 @@ def patient_dict_upload(mrn, name, hr, ecg, med):
 
     # Create patient dictionary to upload
     pat_dict = create_pat_dict(mrn_int, name, hr, ecg, med)
-    print(pat_dict)
 
     # API route
     r = requests.post(path + "/api/post_new_patient_info", json=pat_dict)
@@ -128,7 +121,7 @@ def patient_gui():
 
         # Check if images exist, convert to b64str
         if os.path.exists("ecg_trace.jpg"):  # ECG file exists
-            ecg_upload_str = img_to_b64_str("ecg_trace.jpg")
+            ecg_upload_str = it.file_to_b64("ecg_trace.jpg")
             hr = int(hr_value_label.cget("text"))
         else:
             ecg_upload_str = None
@@ -138,7 +131,7 @@ def patient_gui():
         if med_img_filename is None:         # Blank med img
             med_upload_str = None
         else:
-            med_upload_str = img_to_b64_str(med_img_filename)
+            med_upload_str = it.file_to_b64(med_img_filename)
 
         # Dict creation and server function call
         patient_dict_upload(mrn, name, hr,

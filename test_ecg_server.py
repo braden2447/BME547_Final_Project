@@ -106,13 +106,6 @@ def test_adj_factor(original_size, expected):
     assert adj_factor(original_size) == expected
 
 
-def test_img_to_b64_str():
-    from patient_gui import img_to_b64_str
-    answer = img_to_b64_str("images/test_image.png")
-    expected = "iVBORw0KGgoAAAANSUhE"
-    assert answer[0:20] == expected
-
-
 @pytest.mark.parametrize("input, expected", [
     (60, (60, True)),
     (-4, (-4, True)),
