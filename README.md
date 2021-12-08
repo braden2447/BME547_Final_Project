@@ -5,8 +5,6 @@
 
 ## Authors: Braden Garrison and Anuj Som
 
-## Due: 12/5/21
-
 ## Repository Purpose
 
 This patient monitoring client/server project repository serves as a total Patient Monitoring 
